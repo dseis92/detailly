@@ -49,4 +49,33 @@ describe("availability slot search", () => {
       localDateTimeToUtc("2026-10-05T09:00", "America/Chicago")?.toISOString()
     ).toBe("2026-10-05T14:00:00.000Z");
   });
+
+  it("subtracts a time-off block before returning slots", () => {
+    const slots = searchAvailableSlots({
+      rangeStart: new Date("2026-10-05T00:00:00.000Z"),
+      rangeEnd: new Date("2026-10-06T00:00:00.000Z"),
+      durationMinutes: 60,
+      windows: [
+        {
+          weekday: 1,
+          startLocal: "09:00",
+          endLocal: "12:00",
+          timezone: "America/Chicago",
+          slotIntervalMinutes: 60,
+          capacity: 1
+        }
+      ],
+      blockedIntervals: [
+        {
+          startsAt: new Date("2026-10-05T15:00:00.000Z"),
+          endsAt: new Date("2026-10-05T16:00:00.000Z")
+        }
+      ]
+    });
+
+    expect(slots.map((slot) => slot.startsAt.toISOString())).toEqual([
+      "2026-10-05T14:00:00.000Z",
+      "2026-10-05T16:00:00.000Z"
+    ]);
+  });
 });

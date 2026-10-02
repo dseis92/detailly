@@ -14,6 +14,11 @@ export interface OccupiedHold {
   readonly status: "active" | "converted" | "released";
 }
 
+export interface BlockedInterval {
+  readonly startsAt: Date;
+  readonly endsAt: Date;
+}
+
 export interface SlotSearchInput {
   readonly rangeStart: Date;
   readonly rangeEnd: Date;
@@ -21,6 +26,7 @@ export interface SlotSearchInput {
   readonly now?: Date;
   readonly windows: readonly AvailabilityWindow[];
   readonly holds?: readonly OccupiedHold[];
+  readonly blockedIntervals?: readonly BlockedInterval[];
 }
 
 export interface AvailableSlot {
@@ -33,6 +39,7 @@ export function searchAvailableSlots(input: SlotSearchInput): AvailableSlot[] {
   assertSearchInput(input);
   const results: AvailableSlot[] = [];
   const holds = input.holds ?? [];
+  const blockedIntervals = input.blockedIntervals ?? [];
   const now = input.now ?? new Date();
 
   for (
@@ -72,6 +79,13 @@ export function searchAvailableSlots(input: SlotSearchInput): AvailableSlot[] {
       ) {
         const endsAt = new Date(startsAt + serviceMs);
         if (endsAt <= input.rangeStart || new Date(startsAt) >= input.rangeEnd)
+          continue;
+        if (
+          blockedIntervals.some(
+            (block) =>
+              block.endsAt > new Date(startsAt) && block.startsAt < endsAt
+          )
+        )
           continue;
         const conflicts = occupied.filter(
           (hold) => hold.endsAt > new Date(startsAt) && hold.startsAt < endsAt

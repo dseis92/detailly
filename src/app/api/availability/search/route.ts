@@ -2,6 +2,7 @@ import { z } from "zod";
 import {
   searchAvailableSlots,
   type AvailabilityWindow,
+  type BlockedInterval,
   type OccupiedHold
 } from "@/modules/availability/slots";
 
@@ -21,13 +22,19 @@ const holdSchema = z.object({
   status: z.enum(["active", "converted", "released"])
 });
 
+const blockedIntervalSchema = z.object({
+  startsAt: z.coerce.date(),
+  endsAt: z.coerce.date()
+});
+
 const searchSchema = z.object({
   rangeStart: z.coerce.date(),
   rangeEnd: z.coerce.date(),
   durationMinutes: z.number().int().positive(),
   now: z.coerce.date().optional(),
   windows: z.array(windowSchema).min(1),
-  holds: z.array(holdSchema).optional()
+  holds: z.array(holdSchema).optional(),
+  blockedIntervals: z.array(blockedIntervalSchema).optional()
 });
 
 export async function POST(request: Request): Promise<Response> {
@@ -58,6 +65,11 @@ export async function POST(request: Request): Promise<Response> {
       ...(parsed.data.now ? { now: parsed.data.now } : {}),
       ...(parsed.data.holds
         ? { holds: parsed.data.holds as OccupiedHold[] }
+        : {}),
+      ...(parsed.data.blockedIntervals
+        ? {
+            blockedIntervals: parsed.data.blockedIntervals as BlockedInterval[]
+          }
         : {})
     };
     const result = searchAvailableSlots(searchInput);
