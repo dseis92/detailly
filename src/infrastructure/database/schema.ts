@@ -29,6 +29,12 @@ export const menuStatus = pgEnum("menu_status", [
   "published",
   "retired"
 ]);
+export const holdStatus = pgEnum("hold_status", [
+  "active",
+  "converted",
+  "released",
+  "expired"
+]);
 
 export const businesses = pgTable(
   "businesses",
@@ -371,6 +377,140 @@ export const servicePackages = pgTable(
     check(
       "service_packages_discount_range",
       sql`${table.discountBasisPoints} >= 0 AND ${table.discountBasisPoints} < 10000`
+    )
+  ]
+);
+
+export const availabilityRules = pgTable(
+  "availability_rules",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    businessId: uuid("business_id")
+      .notNull()
+      .references(() => businesses.id, { onDelete: "restrict" }),
+    locationId: uuid("location_id")
+      .notNull()
+      .references(() => locations.id, { onDelete: "restrict" }),
+    weekday: integer("weekday").notNull(),
+    startLocal: text("start_local").notNull(),
+    endLocal: text("end_local").notNull(),
+    timezone: text("timezone").notNull(),
+    slotIntervalMinutes: integer("slot_interval_minutes").notNull().default(30),
+    capacity: integer("capacity").notNull().default(1),
+    effectiveFrom: timestamp("effective_from", {
+      withTimezone: true,
+      mode: "date"
+    }),
+    effectiveUntil: timestamp("effective_until", {
+      withTimezone: true,
+      mode: "date"
+    }),
+    status: recordStatus("status").notNull().default("active"),
+    createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true, mode: "date" })
+      .notNull()
+      .defaultNow()
+  },
+  (table) => [
+    index("availability_rules_location_weekday_idx").on(
+      table.locationId,
+      table.weekday
+    ),
+    check(
+      "availability_rules_weekday_range",
+      sql`${table.weekday} >= 0 AND ${table.weekday} <= 6`
+    ),
+    check("availability_rules_capacity_positive", sql`${table.capacity} > 0`),
+    check(
+      "availability_rules_interval_positive",
+      sql`${table.slotIntervalMinutes} > 0`
+    ),
+    check(
+      "availability_rules_effective_order",
+      sql`${table.effectiveUntil} IS NULL OR ${table.effectiveFrom} IS NULL OR ${table.effectiveUntil} > ${table.effectiveFrom}`
+    )
+  ]
+);
+
+export const timeOffBlocks = pgTable(
+  "time_off_blocks",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    businessId: uuid("business_id")
+      .notNull()
+      .references(() => businesses.id, { onDelete: "restrict" }),
+    locationId: uuid("location_id")
+      .notNull()
+      .references(() => locations.id, { onDelete: "restrict" }),
+    startsAt: timestamp("starts_at", {
+      withTimezone: true,
+      mode: "date"
+    }).notNull(),
+    endsAt: timestamp("ends_at", {
+      withTimezone: true,
+      mode: "date"
+    }).notNull(),
+    reason: text("reason").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
+      .notNull()
+      .defaultNow()
+  },
+  (table) => [
+    index("time_off_blocks_location_interval_idx").on(
+      table.locationId,
+      table.startsAt,
+      table.endsAt
+    ),
+    check("time_off_blocks_order", sql`${table.endsAt} > ${table.startsAt}`)
+  ]
+);
+
+export const slotHolds = pgTable(
+  "slot_holds",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    businessId: uuid("business_id")
+      .notNull()
+      .references(() => businesses.id, { onDelete: "restrict" }),
+    locationId: uuid("location_id")
+      .notNull()
+      .references(() => locations.id, { onDelete: "restrict" }),
+    tokenHash: text("token_hash").notNull(),
+    startsAt: timestamp("starts_at", {
+      withTimezone: true,
+      mode: "date"
+    }).notNull(),
+    endsAt: timestamp("ends_at", {
+      withTimezone: true,
+      mode: "date"
+    }).notNull(),
+    expiresAt: timestamp("expires_at", {
+      withTimezone: true,
+      mode: "date"
+    }).notNull(),
+    status: holdStatus("status").notNull().default("active"),
+    idempotencyKey: text("idempotency_key").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
+      .notNull()
+      .defaultNow()
+  },
+  (table) => [
+    uniqueIndex("slot_holds_token_hash_unique").on(table.tokenHash),
+    uniqueIndex("slot_holds_location_idempotency_unique").on(
+      table.locationId,
+      table.idempotencyKey
+    ),
+    index("slot_holds_location_interval_idx").on(
+      table.locationId,
+      table.startsAt,
+      table.endsAt
+    ),
+    check("slot_holds_order", sql`${table.endsAt} > ${table.startsAt}`),
+    check(
+      "slot_holds_expiry_after_start",
+      sql`${table.expiresAt} > ${table.createdAt}`
     )
   ]
 );
