@@ -403,7 +403,10 @@ export function BookingFlow({
                               }}
                             >
                               <div className="service-illustration">
-                                <ServiceVideo group={s.group} />
+                                <ServiceVideo
+                                  group={s.group}
+                                  active={selected.includes(s.id)}
+                                />
                                 <span>
                                   {s.group === "interior-detail"
                                     ? "Interior Only"
@@ -1069,7 +1072,7 @@ export function BookingFlow({
               {detail && (
                 <>
                   <div className="detail-image">
-                    <ServiceVideo group={detail.group} />
+                    <ServiceVideo group={detail.group} active />
                     <span>
                       {detail.group === "interior-detail"
                         ? "Interior Only"

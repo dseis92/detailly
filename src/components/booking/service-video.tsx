@@ -1,8 +1,15 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useRef } from "react";
 
-export function ServiceVideo({ group }: { group: string }) {
+export function ServiceVideo({
+  group,
+  active = false
+}: {
+  group: string;
+  active?: boolean;
+}) {
   const ref = useRef<HTMLVideoElement>(null);
   const name =
     group === "interior-detail"
@@ -11,22 +18,28 @@ export function ServiceVideo({ group }: { group: string }) {
         ? "exterior"
         : "full";
   useEffect(() => {
-    const preference = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const update = () => {
-      const video = ref.current;
-      if (!video) return;
-      if (preference.matches) video.pause();
-      else void video.play().catch(() => {});
-    };
-    update();
-    preference.addEventListener("change", update);
-    return () => preference.removeEventListener("change", update);
-  }, [name]);
+    const video = ref.current;
+    if (!video || !active) return;
+    video.muted = true;
+    void video.play().catch(() => {});
+  }, [name, active]);
+  if (!active)
+    return (
+      <Image
+        src={`/services/${name}.jpg`}
+        alt=""
+        fill
+        sizes="(max-width: 606px) 50vw, 280px"
+        className="service-video"
+      />
+    );
   return (
     <video
       ref={ref}
       className="service-video"
       src={`/services/${name}.mp4`}
+      poster={`/services/${name}.jpg`}
+      autoPlay
       muted
       loop
       playsInline
