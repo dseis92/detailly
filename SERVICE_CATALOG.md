@@ -1,6 +1,6 @@
 # Approved Mobile Service Catalog
 
-Status: Approved business input recorded 2026-10-02. This is the mobile-only catalog baseline for Phase 3. Prices are customer-facing promotional prices before tax; savings are calculated against explicitly stored original prices.
+Status: Approved business input recorded 2026-10-01. This is the mobile-only catalog baseline for Phase 3. Prices are customer-facing promotional prices before tax; savings are calculated against explicitly stored original prices.
 
 ## Booking rules
 

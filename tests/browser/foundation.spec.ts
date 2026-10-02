@@ -31,3 +31,16 @@ test("session endpoint denies anonymous access", async ({ request }) => {
   expect(response.status()).toBe(401);
   await expect(response.json()).resolves.toEqual({ authenticated: false });
 });
+
+test("approved services catalog is visible", async ({ page }) => {
+  await page.goto("/services");
+
+  await expect(
+    page.getByRole("heading", { name: "Good care, clearly priced." })
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Interior Detail" })
+  ).toBeVisible();
+  await expect(page.getByText("$150.00").first()).toBeVisible();
+  await expect(page.getByText(/No add-ons currently offered/i)).toBeVisible();
+});

@@ -90,6 +90,183 @@ a {
   color: #529c43;
 }
 
+.services-page {
+  width: min(100% - 2rem, 92rem);
+  margin-inline: auto;
+  padding-bottom: 5rem;
+}
+
+.services-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.3rem 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.services-intro {
+  max-width: 48rem;
+  padding-block: clamp(4rem, 9vw, 7rem) 4rem;
+}
+
+.services-intro h1 {
+  max-width: 8ch;
+  margin-block: 1rem 1.4rem;
+  font-size: clamp(3.2rem, 9vw, 7.5rem);
+}
+
+.services-intro > p:not(.kicker) {
+  max-width: 34rem;
+  color: var(--muted);
+  font-size: 1.15rem;
+  line-height: 1.5;
+}
+
+.catalog-note {
+  width: fit-content;
+  margin-top: 1.5rem;
+  padding: 0.65rem 0.85rem;
+  border-left: 3px solid var(--electric);
+  background: white;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.service-group {
+  margin-top: 4rem;
+}
+
+.service-group-heading {
+  display: grid;
+  grid-template-columns: 3rem 1fr auto;
+  align-items: start;
+  gap: 0.75rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--ink);
+}
+
+.service-group-heading h2 {
+  margin: 0;
+  font-size: clamp(2rem, 5vw, 4rem);
+}
+
+.discount-chip {
+  padding: 0.45rem 0.65rem;
+  border-radius: 100vmax;
+  background: var(--electric);
+  font-size: 0.7rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.service-cards {
+  display: grid;
+  gap: 1rem;
+  padding-top: 1rem;
+}
+
+.service-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 23rem;
+  padding: 1.25rem;
+  border: 1px solid var(--line);
+  background: white;
+  transition:
+    transform 160ms ease,
+    border-color 160ms ease;
+}
+
+.service-card:hover {
+  border-color: var(--ink);
+  transform: translateY(-0.2rem);
+}
+
+.service-card-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.service-category,
+.service-duration {
+  margin: 0;
+  font-weight: 750;
+}
+
+.service-duration {
+  color: var(--muted);
+  font-size: 0.78rem;
+  white-space: nowrap;
+}
+
+.service-price {
+  display: flex;
+  align-items: baseline;
+  gap: 0.65rem;
+  margin-block: 2.5rem 1rem;
+  font-family: var(--font-display);
+}
+
+.service-price span {
+  font-size: 2.7rem;
+  letter-spacing: -0.07em;
+}
+
+.service-price del {
+  color: var(--muted);
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+}
+
+.service-card details {
+  margin-top: auto;
+  border-top: 1px solid var(--line);
+}
+
+.service-card summary {
+  padding-block: 0.9rem;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 750;
+}
+
+.service-card ul {
+  margin: 0 0 1rem;
+  padding-left: 1.1rem;
+  color: var(--muted);
+  font-size: 0.84rem;
+  line-height: 1.55;
+}
+
+.service-select {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 0.75rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--ink);
+  background: var(--ink);
+  color: white;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 750;
+}
+
+@media (min-width: 42rem) {
+  .service-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .service-card {
+    transition: none;
+  }
+}
+
 .hero::after {
   content: "";
   position: absolute;

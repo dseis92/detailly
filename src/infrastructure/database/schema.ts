@@ -1,6 +1,7 @@
 import {
   check,
   index,
+  integer,
   jsonb,
   pgEnum,
   pgTable,
@@ -22,6 +23,11 @@ export const memberRole = pgEnum("member_role", [
   "staff",
   "manager",
   "owner"
+]);
+export const menuStatus = pgEnum("menu_status", [
+  "draft",
+  "published",
+  "retired"
 ]);
 
 export const businesses = pgTable(
@@ -241,6 +247,130 @@ export const auditEvents = pgTable(
     index("audit_events_business_occurred_idx").on(
       table.businessId,
       table.occurredAt
+    )
+  ]
+);
+
+export const vehicleCategories = pgTable(
+  "vehicle_categories",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    businessId: uuid("business_id")
+      .notNull()
+      .references(() => businesses.id, { onDelete: "restrict" }),
+    name: text("name").notNull(),
+    sortOrder: integer("sort_order").notNull().default(0),
+    status: recordStatus("status").notNull().default("active"),
+    createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true, mode: "date" })
+      .notNull()
+      .defaultNow()
+  },
+  (table) => [
+    uniqueIndex("vehicle_categories_business_name_unique").on(
+      table.businessId,
+      table.name
+    )
+  ]
+);
+
+export const serviceMenus = pgTable(
+  "service_menus",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    businessId: uuid("business_id")
+      .notNull()
+      .references(() => businesses.id, { onDelete: "restrict" }),
+    name: text("name").notNull(),
+    version: integer("version").notNull().default(1),
+    status: menuStatus("status").notNull().default("draft"),
+    createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
+      .notNull()
+      .defaultNow(),
+    publishedAt: timestamp("published_at", { withTimezone: true, mode: "date" })
+  },
+  (table) => [
+    index("service_menus_business_status_idx").on(
+      table.businessId,
+      table.status
+    )
+  ]
+);
+
+export const serviceGroups = pgTable(
+  "service_groups",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    menuId: uuid("menu_id")
+      .notNull()
+      .references(() => serviceMenus.id, { onDelete: "restrict" }),
+    parentGroupId: uuid("parent_group_id"),
+    name: text("name").notNull(),
+    sortOrder: integer("sort_order").notNull().default(0),
+    createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
+      .notNull()
+      .defaultNow()
+  },
+  (table) => [
+    index("service_groups_menu_parent_idx").on(
+      table.menuId,
+      table.parentGroupId
+    )
+  ]
+);
+
+export const servicePackages = pgTable(
+  "service_packages",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    groupId: uuid("group_id")
+      .notNull()
+      .references(() => serviceGroups.id, { onDelete: "restrict" }),
+    vehicleCategoryId: uuid("vehicle_category_id")
+      .notNull()
+      .references(() => vehicleCategories.id, { onDelete: "restrict" }),
+    name: text("name").notNull(),
+    description: text("description").notNull(),
+    inclusions: jsonb("inclusions").$type<string[]>().notNull(),
+    originalPriceMinor: integer("original_price_minor").notNull(),
+    promotionalPriceMinor: integer("promotional_price_minor").notNull(),
+    discountBasisPoints: integer("discount_basis_points").notNull(),
+    durationMinutes: integer("duration_minutes").notNull(),
+    status: recordStatus("status").notNull().default("active"),
+    createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true, mode: "date" })
+      .notNull()
+      .defaultNow()
+  },
+  (table) => [
+    uniqueIndex("service_packages_group_vehicle_name_unique").on(
+      table.groupId,
+      table.vehicleCategoryId,
+      table.name
+    ),
+    check(
+      "service_packages_original_positive",
+      sql`${table.originalPriceMinor} > 0`
+    ),
+    check(
+      "service_packages_promotional_positive",
+      sql`${table.promotionalPriceMinor} > 0`
+    ),
+    check(
+      "service_packages_promotional_not_above_original",
+      sql`${table.promotionalPriceMinor} <= ${table.originalPriceMinor}`
+    ),
+    check(
+      "service_packages_duration_positive",
+      sql`${table.durationMinutes} > 0`
+    ),
+    check(
+      "service_packages_discount_range",
+      sql`${table.discountBasisPoints} >= 0 AND ${table.discountBasisPoints} < 10000`
     )
   ]
 );
