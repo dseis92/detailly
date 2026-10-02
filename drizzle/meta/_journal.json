@@ -8,6 +8,13 @@
       "when": 1790881800732,
       "tag": "0000_careless_eddie_brock",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1790913292784,
+      "tag": "0001_nifty_bloodaxe",
+      "breakpoints": true
     }
   ]
 }

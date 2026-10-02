@@ -47,6 +47,49 @@ a {
   border-bottom: 1px solid var(--ink);
 }
 
+.auth-page,
+.admin-page {
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  padding: 1.5rem;
+  background: var(--paper);
+}
+
+.auth-card,
+.admin-shell {
+  width: min(100%, 38rem);
+  padding: clamp(2rem, 7vw, 5rem);
+  border: 1px solid var(--ink);
+  background: white;
+  box-shadow: 0.7rem 0.7rem 0 var(--electric);
+}
+
+.auth-card h1,
+.admin-shell h1 {
+  max-width: 10ch;
+  margin-block: 1rem;
+  font-size: clamp(2.7rem, 8vw, 5.6rem);
+}
+
+.auth-card p:not(.kicker),
+.admin-shell p:not(.kicker) {
+  max-width: 34rem;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.admin-status {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+  font-weight: 700;
+}
+
+.admin-status span {
+  color: #529c43;
+}
+
 .hero::after {
   content: "";
   position: absolute;

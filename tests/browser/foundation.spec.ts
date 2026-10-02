@@ -15,3 +15,19 @@ test("foundation page is usable", async ({ page }) => {
     })
   ).toBeInViewport();
 });
+
+test("operations workspace denies anonymous access", async ({ page }) => {
+  await page.goto("/admin");
+
+  await expect(page).toHaveURL(/\/sign-in\?callbackUrl=%2Fadmin/);
+  await expect(page.getByRole("heading", { level: 1 })).toContainText(
+    "Your bookings"
+  );
+});
+
+test("session endpoint denies anonymous access", async ({ request }) => {
+  const response = await request.get("/api/auth/session");
+
+  expect(response.status()).toBe(401);
+  await expect(response.json()).resolves.toEqual({ authenticated: false });
+});
