@@ -12,11 +12,20 @@ Status: Phase 0 planning baseline. Foundation defaults were approved on 2026-10-
 - Configurable initial defaults of `en-US`, `USD`, and `America/Chicago`.
 - No production services, live provider accounts, or other live resources are created during foundation work.
 
+## Approved business rules
+
+- The booking flow is **mobile service only**; there is no shop drop-off mode.
+- The current catalog is defined in `SERVICE_CATALOG.md`.
+- A 50% deposit is required before booking confirmation.
+- Sales tax is 5.5% for the current baseline.
+- Interior Detail is 10% off and Full Detail is 25% off, calculated against stored original prices.
+- The current catalog has no selectable add-ons.
+
 ## Product goals
 
 Build a mobile-first booking and customer-management product for an auto-detailing business that:
 
-- lets a customer confidently price and schedule a mobile or shop appointment with minimal backtracking;
+- lets a customer confidently price and schedule a mobile appointment with minimal backtracking;
 - gives the business one authoritative record for services, availability, customers, vehicles, appointments, and payments;
 - prevents invalid service areas, stale prices, unavailable slots, overlapping work, and duplicate charges;
 - supports future branding and operational policy changes as configuration rather than code changes; and
@@ -38,15 +47,15 @@ Authorization is deny-by-default and scoped to a business. Roles do not imply ac
 ## Customer booking journey
 
 1. **Start with location.** Customer enters a street address using accessible autocomplete or manual entry. The server normalizes coordinates and verifies the applicable service area. A desktop layout may keep a contextual map and marker visible; the mobile layout prioritizes the form. Customers can adjust the marker where permitted.
-2. **Choose fulfillment.** Select mobile service or shop drop-off. Only supported modes and locations appear. Shop mode shows the shop address and arrival guidance; mobile mode confirms serviceability and later asks about site utilities.
+2. **Confirm mobile service.** There is no shop mode. The flow confirms the address is eligible for mobile service and later asks about site utilities.
 3. **Choose or describe a vehicle.** A signed-in customer can select a garage vehicle or add one. A guest adds one for the booking. Vehicle category is explicit because it can affect compatibility, price, and duration.
-4. **Choose services.** Browse nested service groups and packages. Package panels explain inclusions, exclusions, starting or exact price, duration, vehicle compatibility, and configurable choices. The customer selects add-ons and tiered extras.
+4. **Choose services.** Browse Interior Detail, Exterior Detail, and Full Detail Package groups. Package panels explain inclusions, savings label, exact promotional price, duration, and vehicle compatibility. The current catalog has no add-ons or tiered extras.
 5. **Review live estimate.** The client previews price and duration as selections change. The server recalculates the authoritative quote from versioned menu and pricing data. Taxes, fees, discounts, deposit, and total are itemized.
 6. **Choose date and time.** Calendar shows server-computed dates and appointment windows based on location, mode, vehicle, services, duration, staff/capacity, lead time, availability, blackout periods, and existing commitments. Selecting a slot creates a short-lived hold; expiry is visible and recoverable.
 7. **Describe condition.** Add free-text condition/access notes and optional photos. File type, size, count, and purpose are validated. Images are private by default.
 8. **Answer site questions.** Mobile bookings ask whether water and electricity are available, plus any owner-configured access questions. These answers can affect eligibility or pricing only through explicit rules.
 9. **Identify the customer.** Continue as guest or authenticate. Collect name, email, phone, communication consent, and optional referral source. Avoid forcing account creation before checkout.
-10. **Confirm details.** Show service location or shop, appointment window in the business timezone, vehicle, services and extras, customer details, notes/photos, subtotal, discounts/coupon, tax, fees, gift card, required deposit/prepayment, and total. Material changes require reconfirmation.
+10. **Confirm details.** Show the mobile service location, appointment window in the business timezone, vehicle, services, customer details, notes/photos, subtotal, discounts/coupon, tax, fees, gift card, required 50% deposit, and total. Material changes require reconfirmation.
 11. **Pay and book.** Collect card details with provider-hosted fields. The server creates or reuses an idempotent payment operation for the required prepayment. An appointment becomes confirmed only through the defined payment/booking state machine; retries do not duplicate bookings or charges.
 12. **Receipt and next steps.** Confirmation includes a reference, appointment and payment state, policy summary, directions/access guidance, and portal/account-claim path. Email/SMS notifications are queued from committed state.
 
@@ -78,7 +87,7 @@ Dashboard implementation is later work; Phase 0 defines its boundaries.
 
 ### Catalog, pricing, and quoting
 
-- Model multiple draft/published service menus with ordered nested groups, packages, add-ons, tiered extras, and vehicle-category applicability.
+- Model draft/published service menus with ordered nested groups, packages, and vehicle-category applicability. Keep add-on support dormant until a later approved release.
 - Compute quote line items, duration, discounts, fees, taxes, deposit, and total on the server from effective, versioned rules.
 - Snapshot customer-visible names, quantities, unit amounts, durations, and applied-rule identifiers onto appointment items so history does not change with the catalog.
 - Explain unavailable or incompatible selections and revalidate every quote at hold and checkout.
@@ -154,21 +163,21 @@ Dashboard implementation is later work; Phase 0 defines its boundaries.
 - A business may have multiple physical locations and each location may define a timezone; the appointment snapshots the scheduling timezone.
 - English and one settlement currency are acceptable for MVP, while schema and formatting remain currency/locale aware.
 - Service duration can influence availability and can vary by package, vehicle category, add-ons, or explicit pricing/duration rules.
-- Mobile service and shop drop-off can have different catalogs, hours, resource constraints, questions, and service areas.
+- The current business offers mobile service only. The model may retain a future fulfillment-mode seam, but no shop mode should appear in the MVP UI or fixtures.
 - Guest checkout is permitted unless the owner later decides otherwise.
 - Demo fixtures, if added later, will be clearly marked and cannot be mistaken for production policy.
 
 ## Unresolved business questions
 
 1. Final business name, logo, voice, accent color, domains, legal entity, support contacts, and receipt details.
-2. Currency, locale, tax jurisdictions, whether displayed prices include tax, taxable items/fees, and rounding policy.
-3. Locations, exact service-area boundaries, travel fees, excluded zones, address/marker tolerance, and shop/mobile eligibility.
+2. Currency, locale, tax-jurisdiction confirmation, taxable items/fees, and exact rounding policy for reconstructing original promotional prices. The current baseline is USD, en-US, and 5.5% sales tax.
+3. Exact mobile service-area boundaries, travel fees, excluded zones, address/marker tolerance, and operating locations.
 4. Operating hours, booking horizon, lead time, slot interval, arrival windows, buffers, capacity model, concurrent jobs, and staff assignment rules.
 5. Staff structure, permissions, commission/time-tracking needs, and whether customers select a staff member.
 6. Vehicle categories and edge cases (oversize, commercial, motorcycle, boat, pet hair, hazardous condition).
-7. Service hierarchy, package contents, prices, durations, add-ons, tier choices, compatibility, and upsell rules.
+7. Future service hierarchy changes, add-ons, tier choices, compatibility, and upsell rules. Current prices, durations, vehicle categories, and inclusions are approved in `SERVICE_CATALOG.md`.
 8. Water/electricity requirements and outcomes when either is unavailable.
-9. Deposit/prepayment amount, remaining-balance collection, tips, no-show/cancellation/reschedule policy, disputes, and refund authority.
+9. Remaining-balance collection after the approved 50% deposit, tips, no-show/cancellation/reschedule policy, disputes, and refund authority.
 10. Coupon stacking, gift-card rules, membership benefits/renewal, and accounting treatment.
 11. Photo limits, accepted content, operational visibility, retention, and customer deletion behavior.
 12. Required contact fields, guest-account matching, referral options, marketing consent, and email/SMS notification events/preferences.
@@ -180,8 +189,8 @@ Dashboard implementation is later work; Phase 0 defines its boundaries.
 
 ### MVP
 
-- Configurable branding, business/location settings, service areas, shop/mobile modes, vehicle categories, service menus, pricing, availability, blackout periods, and deposits.
-- Complete address-first booking flow, accessible autocomplete/manual address, map marker, eligibility, vehicle, packages/add-ons, quote, slot hold, notes/photos, utilities, guest/account checkout, confirmation, Stripe card prepayment, and receipts.
+- Configurable branding, business/location settings, mobile service areas, vehicle categories, service menus, pricing, availability, blackout periods, and deposits.
+- Complete address-first mobile booking flow, accessible autocomplete/manual address, map marker, eligibility, vehicle, packages, quote, slot hold, notes/photos, utilities, guest/account checkout, confirmation, Stripe card prepayment, and receipts.
 - Customer authentication, profile, garage, and booking history/basic policy actions.
 - Operational dashboard for calendar, appointment/customer detail, core catalog/availability configuration, staff roles, payment/refund visibility, and audit events.
 - Transactional email and essential opted-in SMS.

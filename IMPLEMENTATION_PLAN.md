@@ -40,10 +40,10 @@ Approved inputs for this phase (2026-10-01): one Next.js application managed wit
 ## Phase 3 — Catalog, vehicle, serviceability, and authoritative quotes
 
 - **Objective:** make configurable offerings and produce explainable, server-authoritative estimates.
-- **In scope:** vehicle categories/garage basics; versioned menus/groups/packages/add-ons/tiers; pricing/duration rules; location/mode applicability; address provider adapter, manual address, map marker, service-area checks; quote calculator and admin configuration.
+- **In scope:** vehicle categories/garage basics; versioned menus/groups/packages; pricing/duration rules; mobile service-area applicability; address provider adapter, manual address, map marker, service-area checks; quote calculator and admin configuration.
 - **Out of scope:** calendar holds, appointment checkout, charges.
 - **Expected files/modules:** `catalog-pricing`, `customers-vehicles`, `serviceability`, maps adapter, quote API/UI, catalog admin.
-- **Data changes:** vehicles/categories, menus/groups/packages/add-ons/rules, service areas, quote/booking-attempt records if approved.
+- **Data changes:** vehicles/categories, menus/groups/packages/rules, service areas, quote/booking-attempt records if approved.
 - **Required tests:** pricing equations and property cases, rule precedence/stacking, immutable publication, compatibility, address normalization, boundary cases, provider failure/manual fallback, tenant isolation, accessible autocomplete/map alternative.
 - **Completion criteria:** owner-configured demo menu can publish; supported/unsupported addresses are explainable; same versioned input deterministically yields matching price/duration server results; client manipulation cannot alter quote.
 - **Risks:** ambiguous rules, geocoder/licensing constraints, stale quotes; mitigate with rule DSL limits, provenance, expiry/version fingerprints, manual path.
@@ -62,7 +62,7 @@ Approved inputs for this phase (2026-10-01): one Next.js application managed wit
 ## Phase 5 — Booking flow, uploads, and customer portal core
 
 - **Objective:** deliver the complete non-payment booking workflow and foundational self-service experience.
-- **In scope:** mobile-first step flow, progress/backtracking, vehicle create/select, nested packages/add-ons, live quote, calendar/hold, condition notes/private photos, water/electricity/site questions, guest/auth contact, referral, confirmation review; appointment draft/state/history; portal profile/garage/bookings.
+- **In scope:** mobile-first step flow, progress/backtracking, vehicle create/select, nested packages, live quote, calendar/hold, condition notes/private photos, water/electricity/site questions, guest/auth contact, referral, confirmation review; appointment draft/state/history; portal profile/garage/bookings.
 - **Out of scope:** real charge confirmation, advanced dashboard, gift-card purchase/membership billing.
 - **Expected files/modules:** `booking`, `assets`, customer booking routes/components, portal routes, upload adapter.
 - **Data changes:** appointments/items/history, assets/attachments, site answers and immutable snapshots.

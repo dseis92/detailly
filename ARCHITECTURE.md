@@ -36,7 +36,7 @@ Suggested modules:
 
 - `identity-access`: sessions, users, roles, business membership, authorization policies.
 - `business-config`: businesses, locations, timezone, branding, operational policies.
-- `catalog-pricing`: menus, groups, packages, add-ons, applicability, pricing/duration/tax/deposit calculation.
+- `catalog-pricing`: menus, groups, packages, applicability, pricing/duration/tax/deposit calculation; add-on support remains dormant until approved.
 - `serviceability`: address normalization, coordinates, service-area rules, fulfillment eligibility.
 - `availability`: working rules, capacity/resources, time off, slot generation, holds, conflict detection.
 - `customers-vehicles`: customer profiles, consent, garages, vehicle classification.
