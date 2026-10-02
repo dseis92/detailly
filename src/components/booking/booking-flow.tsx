@@ -4,28 +4,23 @@ import type {
   CatalogPackage,
   VehicleCategory
 } from "@/modules/catalog-pricing/catalog";
+import { ServiceVideo } from "./service-video";
 import { BookingGuide } from "./booking-guide";
 import { VehicleGraphic as Car } from "./vehicle-graphic";
 import type { Quote } from "@/modules/catalog-pricing/quote";
 
 const categories: { id: VehicleCategory; name: string; shape: string }[] = [
-  { id: "sedan-coupe", name: "Sedan or Coupe", shape: "sedan" },
-  { id: "mini-suv-crossover", name: "Mini SUV or Crossover", shape: "suv" },
-  {
-    id: "medium-suv-medium-truck",
-    name: "Medium SUV or Medium Truck",
-    shape: "truck"
-  },
-  {
-    id: "large-suv-large-truck",
-    name: "Large SUV or Large Truck",
-    shape: "large"
-  }
+  { id: "sedan-coupe", name: "Coupe", shape: "coupe" },
+  { id: "sedan-coupe", name: "Sedan", shape: "sedan" },
+  { id: "mini-suv-crossover", name: "SUV (5 seats)", shape: "suv" },
+  { id: "medium-suv-medium-truck", name: "Truck", shape: "truck" },
+  { id: "large-suv-large-truck", name: "SUV (7 seats)", shape: "large" },
+  { id: "large-suv-large-truck", name: "Minivan", shape: "minivan" }
 ];
 const titles = [
   "",
   "We Come To You",
-  "Detailing Service",
+  "Select A Package",
   "Select Your Date & Time",
   "Additional Information",
   "Provide Your Info",
@@ -69,6 +64,7 @@ export function BookingFlow({
 }) {
   const [step, setStep] = useState(0);
   const [address, setAddress] = useState("");
+  const [vehicleChoice, setVehicleChoice] = useState<string>("sedan");
   const [category, setCategory] = useState<VehicleCategory | null>(null);
   const [selected, setSelected] = useState<string[]>([]);
   const [detail, setDetail] = useState<CatalogPackage | null>(null);
@@ -142,9 +138,8 @@ export function BookingFlow({
       : basket
         ? "Here’s your shine lineup! You can remove a package before you keep going."
         : "Secure payments are coming next. This preview doesn’t collect card details or charge you.";
-  const categoryLabel = categories.find((c) => c.id === category)?.name;
-  const categoryShape =
-    categories.find((c) => c.id === category)?.shape ?? "sedan";
+  const categoryLabel = categories.find((c) => c.shape === vehicleChoice)?.name;
+  const categoryShape = vehicleChoice;
   const formattedDay = day
     ? new Date(`${day}T12:00:00`).toLocaleDateString("en-US", {
         weekday: "short",
@@ -381,22 +376,19 @@ export function BookingFlow({
                     {!category
                       ? categories.map((c) => (
                           <button
-                            key={c.id}
+                            key={c.shape}
                             className={`option-card vehicle-card vehicle-card-${c.shape}`}
                             onClick={() => {
                               if (category !== c.id) void updateQuote([]);
+                              setVehicleChoice(c.shape);
                               setCategory(c.id);
                             }}
                           >
                             <div className="vehicle-stage">
-                              <span className="vehicle-orbit" />
                               <Car shape={c.shape} />
-                              <span className="vehicle-road" />
                             </div>
                             <strong>{c.name}</strong>
-                            <span className="vehicle-choose">
-                              Choose this size <span aria-hidden="true">→</span>
-                            </span>
+                            <span className="vehicle-choose">View Options</span>
                           </button>
                         ))
                       : catalog
@@ -411,7 +403,7 @@ export function BookingFlow({
                               }}
                             >
                               <div className="service-illustration">
-                                <Car shape={categoryShape} />
+                                <ServiceVideo group={s.group} />
                                 <span>
                                   {s.group === "interior-detail"
                                     ? "Interior Only"
@@ -1077,6 +1069,7 @@ export function BookingFlow({
               {detail && (
                 <>
                   <div className="detail-image">
+                    <ServiceVideo group={detail.group} />
                     <span>
                       {detail.group === "interior-detail"
                         ? "Interior Only"
@@ -1084,7 +1077,6 @@ export function BookingFlow({
                           ? "Exterior Only"
                           : "Full Detail"}
                     </span>
-                    <Car shape={categoryShape} />
                   </div>
                   <p>{detail.name} includes:</p>
                   <ul className={`inclusions ${expanded ? "expanded" : ""}`}>

@@ -2227,3 +2227,109 @@ small {
     padding-right: 16px;
   }
 }
+
+/* Vehicle cards match the supplied booking reference. */
+.booking-app .vehicle-card {
+  min-height: 278px;
+  padding: 22px 12px 28px;
+  gap: 18px;
+  border: 1px solid #e9eaed;
+  border-radius: 22px;
+  box-shadow: 0 1px 2px #00000008;
+  background: #fff;
+  color: #283747;
+}
+.booking-app .vehicle-stage {
+  height: 132px;
+  background: #fff;
+  margin-bottom: 8px;
+  overflow: visible;
+}
+.booking-app .vehicle-stage .car-art {
+  width: 150px;
+  max-width: 100%;
+  height: 120px;
+  object-fit: contain;
+}
+.booking-app .vehicle-card strong {
+  font-size: 21px;
+  font-weight: 500;
+}
+.booking-app .vehicle-card .vehicle-choose {
+  color: #9aabc4;
+  font-size: 18px;
+  font-weight: 400;
+}
+.booking-app .vehicle-photo {
+  object-fit: contain;
+}
+.booking-app .vehicle-card:nth-child(5) {
+  animation-delay: 0.24s;
+}
+.booking-app .vehicle-card:nth-child(6) {
+  animation-delay: 0.3s;
+}
+@media (max-width: 420px) {
+  .booking-app .vehicle-card {
+    min-height: 240px;
+    padding: 18px 8px 24px;
+    gap: 14px;
+  }
+  .booking-app .vehicle-card strong {
+    font-size: 17px;
+  }
+  .booking-app .vehicle-card .vehicle-choose {
+    font-size: 15px;
+  }
+  .booking-app .vehicle-stage {
+    height: 110px;
+  }
+  .booking-app .vehicle-stage .car-art {
+    width: 135px;
+    height: 100px;
+  }
+}
+
+.booking-app .service-illustration,
+.booking-app .detail-image {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  border: 0;
+  background: #26343a;
+}
+.booking-app .service-illustration {
+  width: calc(100% + 32px);
+  height: 160px;
+  margin: -16px -16px 8px;
+  border-radius: 16px 16px 0 0;
+}
+.booking-app .detail-image {
+  width: 100%;
+  height: 240px;
+}
+.booking-app .service-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+  z-index: -2;
+}
+.booking-app .service-illustration::after,
+.booking-app .detail-image::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(transparent 30%, #0009);
+  z-index: -1;
+}
+.booking-app .service-illustration > span,
+.booking-app .detail-image > span {
+  color: #fff;
+  text-shadow: 0 1px 4px #0008;
+  align-self: center;
+  margin-top: auto;
+  padding: 16px 8px;
+}
