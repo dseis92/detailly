@@ -1,3 +1,4 @@
+import { bookingPolicy } from "@/modules/business-config/booking-policy";
 import { z } from "zod";
 import {
   searchAvailableSlots,
@@ -61,6 +62,7 @@ export async function POST(request: Request): Promise<Response> {
       rangeStart: parsed.data.rangeStart,
       rangeEnd: parsed.data.rangeEnd,
       durationMinutes: parsed.data.durationMinutes,
+      postServiceBufferMinutes: bookingPolicy.postServiceBufferMinutes,
       windows: parsed.data.windows as AvailabilityWindow[],
       ...(parsed.data.now ? { now: parsed.data.now } : {}),
       ...(parsed.data.holds
@@ -78,6 +80,7 @@ export async function POST(request: Request): Promise<Response> {
         slots: result.map((slot) => ({
           startsAt: slot.startsAt.toISOString(),
           endsAt: slot.endsAt.toISOString(),
+          blockedUntil: slot.blockedUntil.toISOString(),
           timezone: slot.timezone
         }))
       },

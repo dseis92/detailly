@@ -1,19 +1,18 @@
 import { expect, test } from "@playwright/test";
 
-test("foundation page is usable", async ({ page }) => {
+test("booking starts with address entry", async ({ page }) => {
   await page.goto("/");
-
   await expect(page).toHaveTitle(/Detailly/);
   await expect(page.getByRole("heading", { level: 1 })).toContainText(
-    "Care starts"
+    "Simply Enter Your Address"
   );
-
-  await page.getByRole("link", { name: "View the foundation" }).click();
-  await expect(
-    page.getByRole("heading", {
-      name: "Simple for the customer. Rigorous underneath."
-    })
-  ).toBeInViewport();
+  await page
+    .getByRole("textbox", { name: "Service address" })
+    .fill("100 Main Street, Madison WI 53703");
+  await page.getByRole("button", { name: "Next", exact: true }).click();
+  await expect(page.getByRole("heading", { level: 1 })).toContainText(
+    "We Come To You"
+  );
 });
 
 test("operations workspace denies anonymous access", async ({ page }) => {

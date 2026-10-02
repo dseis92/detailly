@@ -23,6 +23,7 @@ export interface SlotSearchInput {
   readonly rangeStart: Date;
   readonly rangeEnd: Date;
   readonly durationMinutes: number;
+  readonly postServiceBufferMinutes?: number;
   readonly now?: Date;
   readonly windows: readonly AvailabilityWindow[];
   readonly holds?: readonly OccupiedHold[];
@@ -30,6 +31,8 @@ export interface SlotSearchInput {
 }
 
 export interface AvailableSlot {
+  /** Crew occupancy includes the post-service buffer; persist this end for holds. */
+  readonly blockedUntil: Date;
   readonly startsAt: Date;
   readonly endsAt: Date;
   readonly timezone: string;
@@ -67,7 +70,11 @@ export function searchAvailableSlots(input: SlotSearchInput): AvailableSlot[] {
           hold.status === "active" &&
           hold.expiresAt > now &&
           hold.endsAt > windowStart &&
-          hold.startsAt < windowEnd
+          hold.startsAt <
+            new Date(
+              windowEnd.getTime() +
+                (input.postServiceBufferMinutes ?? 0) * 60_000
+            )
       );
       const stepMs = window.slotIntervalMinutes * 60_000;
       const serviceMs = input.durationMinutes * 60_000;
@@ -78,22 +85,27 @@ export function searchAvailableSlots(input: SlotSearchInput): AvailableSlot[] {
         startsAt += stepMs
       ) {
         const endsAt = new Date(startsAt + serviceMs);
+        const blockedUntil = new Date(
+          endsAt.getTime() + (input.postServiceBufferMinutes ?? 0) * 60_000
+        );
         if (endsAt <= input.rangeStart || new Date(startsAt) >= input.rangeEnd)
           continue;
         if (
           blockedIntervals.some(
             (block) =>
-              block.endsAt > new Date(startsAt) && block.startsAt < endsAt
+              block.endsAt > new Date(startsAt) && block.startsAt < blockedUntil
           )
         )
           continue;
         const conflicts = occupied.filter(
-          (hold) => hold.endsAt > new Date(startsAt) && hold.startsAt < endsAt
+          (hold) =>
+            hold.endsAt > new Date(startsAt) && hold.startsAt < blockedUntil
         ).length;
         if (conflicts < window.capacity) {
           results.push({
             startsAt: new Date(startsAt),
             endsAt,
+            blockedUntil,
             timezone: window.timezone
           });
         }
@@ -134,6 +146,13 @@ export function localDateTimeToUtc(
 function assertSearchInput(input: SlotSearchInput): void {
   if (input.rangeEnd <= input.rangeStart)
     throw new Error("Search range is invalid.");
+  if (
+    !Number.isInteger(input.postServiceBufferMinutes ?? 0) ||
+    (input.postServiceBufferMinutes ?? 0) < 0
+  )
+    throw new Error(
+      "Post-service buffer must be a nonnegative number of minutes."
+    );
   if (input.durationMinutes <= 0) throw new Error("Duration must be positive.");
   for (const window of input.windows) {
     if (window.weekday < 0 || window.weekday > 6)

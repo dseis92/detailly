@@ -48,7 +48,14 @@ const exteriorInclusions = [
   "Touch Up Spot Polish"
 ] as const;
 
-const fullInclusions = [...exteriorInclusions, ...interiorInclusions] as const;
+const fullInclusions = [
+  ...exteriorInclusions,
+  ...interiorInclusions.map((line) =>
+    line === "Upholstery clean and extraction"
+      ? "Upholstery/carpet shampoo and extraction"
+      : line
+  )
+] as const;
 
 const matrix: ReadonlyArray<
   readonly [VehicleCategory, number, number, number, number, number, number]

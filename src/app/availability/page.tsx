@@ -2,51 +2,11 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { operatingWindows } from "@/modules/business-config/booking-policy";
 
 type Slot = { startsAt: string; endsAt: string; timezone: string };
 
-const previewWindows = [
-  {
-    weekday: 1,
-    startLocal: "09:00",
-    endLocal: "17:00",
-    timezone: "America/Chicago",
-    slotIntervalMinutes: 30,
-    capacity: 1
-  },
-  {
-    weekday: 2,
-    startLocal: "09:00",
-    endLocal: "17:00",
-    timezone: "America/Chicago",
-    slotIntervalMinutes: 30,
-    capacity: 1
-  },
-  {
-    weekday: 3,
-    startLocal: "09:00",
-    endLocal: "17:00",
-    timezone: "America/Chicago",
-    slotIntervalMinutes: 30,
-    capacity: 1
-  },
-  {
-    weekday: 4,
-    startLocal: "09:00",
-    endLocal: "17:00",
-    timezone: "America/Chicago",
-    slotIntervalMinutes: 30,
-    capacity: 1
-  },
-  {
-    weekday: 5,
-    startLocal: "09:00",
-    endLocal: "17:00",
-    timezone: "America/Chicago",
-    slotIntervalMinutes: 30,
-    capacity: 1
-  }
-];
+const previewWindows = operatingWindows;
 
 export default function AvailabilityPage() {
   const [date, setDate] = useState(nextWeekday());
@@ -109,8 +69,9 @@ export default function AvailabilityPage() {
           windows.
         </p>
         <p className="preview-note" role="note">
-          Preview hours only · final operating hours are configured by the
-          business before launch.
+          Monday–Sunday · 9am–9pm Central · One crew. Includes 45 minutes after
+          each service for travel/setup. Existing bookings are not connected in
+          this preview.
         </p>
       </section>
       <section className="availability-panel" aria-label="Availability search">

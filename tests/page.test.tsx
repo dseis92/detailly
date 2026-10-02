@@ -3,20 +3,19 @@ import { describe, expect, it } from "vitest";
 import HomePage from "@/app/page";
 import ServicesPage from "@/app/services/page";
 
-describe("foundation page", () => {
-  it("has a clear heading hierarchy and foundation navigation", () => {
+describe("booking page", () => {
+  it("starts with an accessible address form", () => {
     render(<HomePage />);
-
     expect(
       screen.getByRole("heading", {
         level: 1,
-        name: /care starts.*before the keys/i
+        name: /simply enter your address/i
       })
     ).toBeVisible();
     expect(
-      screen.getByRole("link", { name: /view the foundation/i })
-    ).toHaveAttribute("href", "#foundation");
-    expect(screen.getAllByRole("heading", { level: 3 })).toHaveLength(3);
+      screen.getByRole("textbox", { name: "Service address" })
+    ).toBeVisible();
+    expect(screen.getByRole("button", { name: "Next" })).toBeVisible();
   });
 });
 

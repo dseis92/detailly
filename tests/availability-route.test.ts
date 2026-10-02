@@ -32,16 +32,19 @@ describe("availability search API", () => {
         {
           startsAt: "2026-10-05T14:00:00.000Z",
           endsAt: "2026-10-05T16:00:00.000Z",
+          blockedUntil: "2026-10-05T16:45:00.000Z",
           timezone: "America/Chicago"
         },
         {
           startsAt: "2026-10-05T15:00:00.000Z",
           endsAt: "2026-10-05T17:00:00.000Z",
+          blockedUntil: "2026-10-05T17:45:00.000Z",
           timezone: "America/Chicago"
         },
         {
           startsAt: "2026-10-05T16:00:00.000Z",
           endsAt: "2026-10-05T18:00:00.000Z",
+          blockedUntil: "2026-10-05T18:45:00.000Z",
           timezone: "America/Chicago"
         }
       ]

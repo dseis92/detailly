@@ -199,3 +199,7 @@ Dashboard implementation is later work; Phase 0 defines its boundaries.
 
 - Advanced memberships/subscriptions, gift-card purchase flows, loyalty/referrals, tips, waitlists, recurring/fleet bookings, route optimization, staff commissions, inventory, richer CRM/marketing, accounting integrations, native apps, multi-currency/localization, and multi-business SaaS controls.
 - Optimization should follow measured operational need; later scope must not weaken booking/payment invariants.
+
+## Approved service area and operating schedule — 2026-10-02
+
+The owner approved a 60-mile radius around each of ZIPs 54401, 54403, 54474, 54476, 54481, 54482, and 54467; their combined area is the service area. Implemented as straight-line distance from Census 2026 ZIP reference coordinates, with final street-address eligibility requiring server geocoding. Hours are Monday–Sunday 9am–9pm in America/Chicago, with one crew. Appointments must finish within these hours. A fixed 45-minute buffer after each service is approved; crew occupancy is service duration plus 45 minutes. Start-time intervals are 15 minutes so exact buffer boundaries are available. See `BUSINESS_SETTINGS.md` for provenance and implementation limits.
