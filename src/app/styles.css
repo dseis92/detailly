@@ -1753,3 +1753,477 @@ small {
 .booking-app .option-card.service-card.selected {
   border-color: var(--accent);
 }
+/* Playful vehicle selection and a consistent motion language. */
+.booking-app .step-content {
+  animation: booking-arrive 0.38s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.booking-app .option-card {
+  transition:
+    transform 0.24s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.2s,
+    box-shadow 0.2s,
+    background 0.2s;
+}
+.booking-app .option-card:active {
+  transform: scale(0.97);
+}
+.booking-app .vehicle-card {
+  --vehicle-tint: #fff0eb;
+  --vehicle-color: #ed716c;
+  padding: 14px 12px 22px;
+  gap: 13px;
+  overflow: hidden;
+  isolation: isolate;
+  min-height: 246px;
+  animation: vehicle-card-arrive 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.booking-app .vehicle-card-suv {
+  --vehicle-tint: #e9f8ef;
+  --vehicle-color: #40a997;
+}
+.booking-app .vehicle-card-truck {
+  --vehicle-tint: #edf3ff;
+  --vehicle-color: #6c96da;
+}
+.booking-app .vehicle-card-large {
+  --vehicle-tint: #fff5df;
+  --vehicle-color: #da9c39;
+}
+.booking-app .vehicle-card:nth-child(2) {
+  animation-delay: 0.06s;
+}
+.booking-app .vehicle-card:nth-child(3) {
+  animation-delay: 0.12s;
+}
+.booking-app .vehicle-card:nth-child(4) {
+  animation-delay: 0.18s;
+}
+.booking-app .vehicle-stage {
+  width: 100%;
+  height: 128px;
+  position: relative;
+  display: grid;
+  place-items: center;
+  border-radius: 15px;
+  background: var(--vehicle-tint);
+  overflow: hidden;
+  margin-bottom: 6px;
+}
+.booking-app .vehicle-stage .car-art {
+  width: 100%;
+  max-width: 225px;
+  height: 125px;
+  margin: 0;
+  position: relative;
+  z-index: 1;
+  animation: vehicle-drive-in 0.85s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.booking-app .vehicle-orbit {
+  position: absolute;
+  width: 110px;
+  height: 110px;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 1px solid var(--vehicle-color);
+  opacity: 0.15;
+  border-radius: 50%;
+  background: linear-gradient(150deg, #ffffffaf, transparent);
+}
+.booking-app .vehicle-road {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 17px;
+  height: 1px;
+  background: var(--vehicle-color);
+  opacity: 0.2;
+}
+.booking-app .vehicle-road:after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 6px;
+  width: 200%;
+  height: 2px;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--vehicle-color) 0 12px,
+    transparent 12px 36px
+  );
+  animation: vehicle-road-pass 1s linear 3;
+}
+.booking-app .vehicle-card .vehicle-chassis {
+  animation: vehicle-bob 0.65s ease-in-out 5;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.booking-app .vehicle-card .vehicle-wheel {
+  animation: vehicle-wheel-turn 0.85s linear 4;
+}
+.booking-app .vehicle-card .vehicle-sparkle {
+  animation: vehicle-polish 1.3s ease-in-out 3;
+  transform-origin: center;
+  transform-box: fill-box;
+}
+.booking-app .vehicle-card .vehicle-choose {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--vehicle-color);
+  font-weight: 500;
+}
+.booking-app .vehicle-choose > span {
+  display: inline-block;
+  transition: transform 0.2s;
+}
+.booking-app .service-card.selected {
+  box-shadow: 0 0 0 3px #ff003b0c;
+}
+.booking-app .selected-check {
+  animation: selection-pop 0.3s cubic-bezier(0.2, 1.5, 0.5, 1) both;
+}
+.booking-app .primary-button {
+  transition:
+    transform 0.18s,
+    box-shadow 0.18s,
+    background 0.18s;
+}
+.booking-app .primary-button:active {
+  transform: scale(0.96);
+}
+.booking-app .modal-panel {
+  animation: booking-panel-in 0.32s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.booking-app .time-grid .chosen,
+.booking-app .calendar-grid .chosen {
+  animation: selection-pop 0.25s ease-out;
+}
+.booking-app .detail-image .car-art {
+  height: 100px;
+  width: 180px;
+  animation: vehicle-drive-in 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+@media (hover: hover) {
+  .booking-app .vehicle-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--vehicle-color);
+    box-shadow: 0 10px 25px #1425310c;
+  }
+  .booking-app .vehicle-card:hover .car-art,
+  .booking-app .vehicle-card:focus-visible .car-art {
+    transform: translateX(5px) rotate(-1deg);
+  }
+  .booking-app .vehicle-card:hover .vehicle-choose > span {
+    transform: translateX(4px);
+  }
+  .booking-app .primary-button:hover {
+    box-shadow: 0 6px 16px #ff003b22;
+  }
+}
+@keyframes booking-arrive {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes booking-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(22px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes vehicle-card-arrive {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes vehicle-drive-in {
+  from {
+    opacity: 0;
+    transform: translateX(-45px) rotate(-3deg);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) rotate(0);
+  }
+}
+@keyframes vehicle-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-1.5px);
+  }
+}
+@keyframes vehicle-wheel-turn {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes vehicle-road-pass {
+  to {
+    transform: translateX(-36px);
+  }
+}
+@keyframes vehicle-polish {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scale(0.8);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@keyframes selection-pop {
+  0% {
+    transform: scale(0.85);
+  }
+  70% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@media (max-width: 420px) {
+  .booking-app .vehicle-card {
+    min-height: 230px;
+  }
+  .booking-app .vehicle-stage {
+    height: 110px;
+  }
+  .booking-app .vehicle-stage .car-art {
+    height: 108px;
+  }
+  .booking-app .vehicle-card .vehicle-choose {
+    font-size: 13px;
+    gap: 5px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .booking-app *,
+  .booking-app *:before,
+  .booking-app *:after {
+    animation: none !important;
+    transition: none !important;
+  }
+  .booking-app .vehicle-card:hover,
+  .booking-app .vehicle-card:hover .car-art {
+    transform: none;
+  }
+}
+.booking-app .step-header > h1,
+.booking-app .step-header > h2 {
+  grid-column: 2;
+  grid-row: 1;
+}
+.booking-app .step-header > button:first-child {
+  grid-column: 1;
+  grid-row: 1;
+}
+.booking-app .step-header > button:last-child,
+.booking-app .step-header > span:last-child {
+  grid-column: 3;
+  grid-row: 1;
+}
+.booking-app .booking-guide {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 22px;
+  position: relative;
+  animation: booking-arrive 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.booking-app .guide-character {
+  width: 75px;
+  min-width: 75px;
+  align-self: center;
+  line-height: 0;
+}
+.booking-app .guide-character svg {
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+.booking-app .guide-bubble {
+  flex: 1;
+  position: relative;
+  padding: 14px 17px;
+  background: #f1fafc;
+  border: 1px solid #d4eaf0;
+  border-radius: 18px 18px 18px 5px;
+  box-shadow: 0 3px 10px #213b4804;
+  min-width: 0;
+}
+.booking-app .guide-bubble:before {
+  content: "";
+  position: absolute;
+  left: -6px;
+  bottom: 20px;
+  width: 10px;
+  height: 10px;
+  background: #f1fafc;
+  border-left: 1px solid #d4eaf0;
+  border-bottom: 1px solid #d4eaf0;
+  transform: rotate(45deg);
+}
+.booking-app .guide-name {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 7px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #234958;
+  margin-bottom: 5px;
+}
+.booking-app .guide-name > span {
+  font-size: 12px;
+  font-weight: 400;
+  color: #647f8b;
+}
+.booking-app .guide-bubble p {
+  font-size: 15px;
+  line-height: 1.5;
+  margin: 0;
+  color: #314d59;
+}
+.booking-app .guide-body {
+  animation: guide-hello 0.7s ease-in-out 3;
+  transform-origin: 55px 112px;
+}
+.booking-app .guide-wave {
+  animation: guide-wave 0.6s ease-in-out 4;
+  transform-origin: 94px 63px;
+}
+.booking-app .guide-bubbles {
+  animation: guide-bubble-drift 1.2s ease-in-out 3;
+}
+.booking-app .address-entry .booking-guide {
+  margin: 0 0 16px;
+}
+.booking-app .address-entry .guide-bubble {
+  background: #fffffff2;
+}
+.booking-app .address-entry .guide-bubble:before {
+  background: white;
+}
+.booking-app .modal-content > .booking-guide {
+  margin-bottom: 25px;
+}
+.booking-app .booking-guide + .breadcrumbs {
+  margin-top: 0;
+}
+@keyframes guide-hello {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  50% {
+    transform: rotate(-3deg) translateY(-2px);
+  }
+}
+@keyframes guide-wave {
+  0%,
+  100% {
+    transform: rotate(-5deg);
+  }
+  50% {
+    transform: rotate(18deg);
+  }
+}
+@keyframes guide-bubble-drift {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.7;
+  }
+  50% {
+    transform: translateY(-4px);
+    opacity: 1;
+  }
+}
+@media (max-width: 420px) {
+  .booking-app .guide-character {
+    width: 62px;
+    min-width: 62px;
+  }
+  .booking-app .guide-bubble {
+    padding: 12px 13px;
+  }
+  .booking-app .guide-bubble p {
+    font-size: 14px;
+  }
+  .booking-app .booking-guide {
+    gap: 8px;
+    margin-bottom: 18px;
+  }
+  .booking-app .guide-name > span {
+    font-size: 12px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .booking-app .booking-guide,
+  .booking-app .guide-body,
+  .booking-app .guide-wave,
+  .booking-app .guide-bubbles {
+    animation: none !important;
+  }
+}
+
+/* Keep the guide beside the next action at the bottom of every screen. */
+.booking-app .booking-shell,
+.booking-app .modal-panel {
+  padding-bottom: 280px;
+}
+.booking-app .booking-bottom-dock {
+  position: fixed;
+  z-index: 3;
+  bottom: 0;
+  width: 100%;
+  max-width: 606px;
+  padding: 16px 22px 0;
+  background: linear-gradient(#ffffffed, #fff 25%);
+}
+.booking-app .booking-bottom-dock > .booking-guide {
+  margin-bottom: 0;
+}
+.booking-app .booking-bottom-dock .booking-toolbar {
+  position: static;
+  padding-left: 0;
+  padding-right: 0;
+  background: transparent;
+}
+.booking-app .booking-bottom-dock:has(> .booking-guide:only-child) {
+  padding-bottom: 16px;
+}
+.booking-app .modal-footer {
+  z-index: 3;
+}
+.booking-app .modal-footer > .booking-guide {
+  margin-bottom: 16px;
+}
+@media (max-width: 520px) {
+  .booking-app .booking-bottom-dock {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+}

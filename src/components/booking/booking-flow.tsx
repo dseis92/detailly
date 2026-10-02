@@ -4,6 +4,8 @@ import type {
   CatalogPackage,
   VehicleCategory
 } from "@/modules/catalog-pricing/catalog";
+import { BookingGuide } from "./booking-guide";
+import { VehicleGraphic as Car } from "./vehicle-graphic";
 import type { Quote } from "@/modules/catalog-pricing/quote";
 
 const categories: { id: VehicleCategory; name: string; shape: string }[] = [
@@ -36,41 +38,6 @@ const money = (value: number) =>
   );
 const duration = (minutes: number) =>
   `${Math.floor(minutes / 60)} hour${minutes >= 120 ? "s" : ""}${minutes % 60 ? ` ${minutes % 60} min` : ""}`;
-function Car({ shape = "sedan" }: { shape?: string }) {
-  return (
-    <svg viewBox="0 0 200 90" aria-hidden="true" className={`car-art ${shape}`}>
-      <defs>
-        <linearGradient id={`silver-${shape}`} x2="0" y2="1">
-          <stop stopColor="#fff" />
-          <stop offset=".5" stopColor="#d4d8db" />
-          <stop offset="1" stopColor="#8c969b" />
-        </linearGradient>
-      </defs>
-      <ellipse cx="100" cy="74" rx="88" ry="5" fill="#e7e9eb" />
-      <path
-        d={
-          shape === "sedan"
-            ? "M14 59L25 47 61 44 80 27 121 27 150 46 179 50 187 63 183 70 18 70Z"
-            : "M14 60L24 42 52 42 66 21 137 21 158 42 180 47 186 66 179 71 19 71Z"
-        }
-        fill={`url(#silver-${shape})`}
-        stroke="#8a949a"
-      />
-      <path d="M67 43L82 30H119L137 43Z" fill="#5c747e" />
-      <path
-        d="M102 29V45M59 48L55 64M144 48L147 64"
-        fill="none"
-        stroke="#9ba5aa"
-      />
-      <rect x="105" y="49" width="9" height="2" rx="1" fill="#81898d" />
-      <path d="M17 55H29M174 53H182" stroke="#f3f0d7" strokeWidth="5" />
-      <circle cx="48" cy="67" r="13" fill="#293036" />
-      <circle cx="48" cy="67" r="7" fill="#b8c0c5" />
-      <circle cx="154" cy="67" r="13" fill="#293036" />
-      <circle cx="154" cy="67" r="7" fill="#b8c0c5" />
-    </svg>
-  );
-}
 function MapBackdrop() {
   return (
     <div className="map-backdrop" aria-hidden="true">
@@ -156,7 +123,28 @@ export function BookingFlow({
       closeButton.current?.focus();
   }, [detail, vehicleModal, payment, basket]);
   const services = catalog.filter((s) => selected.includes(s.id));
+  const guideMessage =
+    [
+      "Hey, I’m Sudsy! Where’s your ride parked? Enter your full address to get started.",
+      "We bring the shine to you! Choose our mobile menu and we’ll take it from here.",
+      category
+        ? "Inside, outside, or the whole works? Tap a package to see what’s included."
+        : "Let’s find your ride’s size! Pick the vehicle that looks closest to yours.",
+      "Pick your perfect time! We leave 45 minutes after every detail for travel and setup.",
+      "Tell me about your ride! Add its condition, photos, and whether water and electricity are available.",
+      "Who’s getting the shine? Add your contact details. You can continue as a guest.",
+      "One last look! Check your details and 50% deposit. This preview won’t charge or book anything yet."
+    ][step] ?? "Let’s get your ride looking its best!";
+  const modalGuideMessage = detail
+    ? "Here’s what’s included! Take a look, then add this package when you’re ready."
+    : vehicleModal
+      ? "What do you drive? Add the make and model so we know which ride to pamper."
+      : basket
+        ? "Here’s your shine lineup! You can remove a package before you keep going."
+        : "Secure payments are coming next. This preview doesn’t collect card details or charge you.";
   const categoryLabel = categories.find((c) => c.id === category)?.name;
+  const categoryShape =
+    categories.find((c) => c.id === category)?.shape ?? "sedan";
   const formattedDay = day
     ? new Date(`${day}T12:00:00`).toLocaleDateString("en-US", {
         weekday: "short",
@@ -344,7 +332,10 @@ export function BookingFlow({
             >
               <div style={{ width: `${progress[step]}%` }} />
             </div>
-            <div className="step-content">
+            <div
+              className="step-content"
+              key={`${step}-${category ?? "sizes"}`}
+            >
               {step === 1 && (
                 <div className="card-grid">
                   <button className="option-card selected" onClick={advance}>
@@ -391,15 +382,21 @@ export function BookingFlow({
                       ? categories.map((c) => (
                           <button
                             key={c.id}
-                            className="option-card vehicle-card"
+                            className={`option-card vehicle-card vehicle-card-${c.shape}`}
                             onClick={() => {
                               if (category !== c.id) void updateQuote([]);
                               setCategory(c.id);
                             }}
                           >
-                            <Car shape={c.shape} />
+                            <div className="vehicle-stage">
+                              <span className="vehicle-orbit" />
+                              <Car shape={c.shape} />
+                              <span className="vehicle-road" />
+                            </div>
                             <strong>{c.name}</strong>
-                            <span>View Options</span>
+                            <span className="vehicle-choose">
+                              Choose this size <span aria-hidden="true">→</span>
+                            </span>
                           </button>
                         ))
                       : catalog
@@ -414,7 +411,7 @@ export function BookingFlow({
                               }}
                             >
                               <div className="service-illustration">
-                                <Car />
+                                <Car shape={categoryShape} />
                                 <span>
                                   {s.group === "interior-detail"
                                     ? "Interior Only"
@@ -449,7 +446,7 @@ export function BookingFlow({
                           {quote && duration(quote.durationMinutes)}
                         </span>
                       </div>
-                      <Car />
+                      <Car shape={categoryShape} />
                     </div>
                     <div className="month-row">
                       <button
@@ -577,7 +574,7 @@ export function BookingFlow({
                     className="vehicle-row"
                     onClick={() => setVehicleModal(true)}
                   >
-                    <Car />
+                    <Car shape={categoryShape} />
                     <strong>{vehicle}</strong>
                     <span>✓</span>
                   </button>
@@ -854,7 +851,7 @@ export function BookingFlow({
                           <span className="qty">1</span>{" "}
                           {money(s.promotionalPriceMinor)} ea
                         </p>
-                        <Car />
+                        <Car shape={categoryShape} />
                       </div>
                     ))}
                   </section>
@@ -944,57 +941,63 @@ export function BookingFlow({
             {error}
           </p>
         )}
-        {step !== 5 && (
-          <footer
-            className={`booking-toolbar ${step === 0 ? "address-toolbar" : ""}`}
-          >
-            <button
-              className="toolbar-summary"
-              disabled={step === 0 || step === 1}
-              onClick={() =>
-                step === 2
-                  ? setBasket(true)
-                  : step >= 3 && step < 6
-                    ? setStep(3)
-                    : undefined
-              }
+        <div className="booking-bottom-dock">
+          <BookingGuide
+            key={`${step}-${category ?? "sizes"}`}
+            message={guideMessage}
+          />
+          {step !== 5 && (
+            <footer
+              className={`booking-toolbar ${step === 0 ? "address-toolbar" : ""}`}
             >
-              {step === 0 ? (
-                ""
-              ) : step === 1 ? (
-                "Mobile Detail Menu (We Come To You)"
-              ) : step === 2 ? (
-                <>
-                  <span className="count">{selected.length}</span>
-                  {busy
-                    ? "Updating…"
-                    : quote
-                      ? money(quote.totalMinor)
-                      : "Choose a service"}
-                </>
-              ) : step === 6 ? (
-                `Deposit ${quote ? money(quote.depositMinor) : ""}`
-              ) : (
-                <>
-                  <span className="calendar-icon">▦</span>
-                  <span>
-                    {formattedDay || "Select a date"}
-                    <small>{time}</small>
-                  </span>
-                </>
-              )}
-            </button>
-            <button
-              className="primary-button"
-              disabled={busy || (step === 2 && !quote)}
-              onClick={step === 6 ? () => setPayment(true) : advance}
-            >
-              {step === 6
-                ? `BOOK NOW · ${quote ? money(quote.depositMinor) : ""}`
-                : "Next"}
-            </button>
-          </footer>
-        )}
+              <button
+                className="toolbar-summary"
+                disabled={step === 0 || step === 1}
+                onClick={() =>
+                  step === 2
+                    ? setBasket(true)
+                    : step >= 3 && step < 6
+                      ? setStep(3)
+                      : undefined
+                }
+              >
+                {step === 0 ? (
+                  ""
+                ) : step === 1 ? (
+                  "Mobile Detail Menu (We Come To You)"
+                ) : step === 2 ? (
+                  <>
+                    <span className="count">{selected.length}</span>
+                    {busy
+                      ? "Updating…"
+                      : quote
+                        ? money(quote.totalMinor)
+                        : "Choose a service"}
+                  </>
+                ) : step === 6 ? (
+                  `Deposit ${quote ? money(quote.depositMinor) : ""}`
+                ) : (
+                  <>
+                    <span className="calendar-icon">▦</span>
+                    <span>
+                      {formattedDay || "Select a date"}
+                      <small>{time}</small>
+                    </span>
+                  </>
+                )}
+              </button>
+              <button
+                className="primary-button"
+                disabled={busy || (step === 2 && !quote)}
+                onClick={step === 6 ? () => setPayment(true) : advance}
+              >
+                {step === 6
+                  ? `BOOK NOW · ${quote ? money(quote.depositMinor) : ""}`
+                  : "Next"}
+              </button>
+            </footer>
+          )}
+        </div>
         {menu && (
           <div className="menu-popover">
             <button
@@ -1081,7 +1084,7 @@ export function BookingFlow({
                           ? "Exterior Only"
                           : "Full Detail"}
                     </span>
-                    <Car />
+                    <Car shape={categoryShape} />
                   </div>
                   <p>{detail.name} includes:</p>
                   <ul className={`inclusions ${expanded ? "expanded" : ""}`}>
@@ -1180,6 +1183,7 @@ export function BookingFlow({
               )}
             </div>
             <footer className="modal-footer">
+              <BookingGuide message={modalGuideMessage} />
               {detail ? (
                 <button
                   className="primary-button"
