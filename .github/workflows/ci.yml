@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_DB: detailly
+          POSTGRES_USER: detailly
+          POSTGRES_PASSWORD: detailly_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U detailly -d detailly"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://detailly:detailly_ci@localhost:5432/detailly
+      APP_BASE_URL: http://localhost:3000
+      BUSINESS_TIMEZONE: America/Chicago
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.21.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm db:migrate
+      - run: pnpm db:check
+      - run: pnpm validate
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm test:browser
