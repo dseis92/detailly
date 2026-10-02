@@ -1,31 +1,30 @@
 # Detailly
 
-Detailly is a mobile-first booking and operations platform for an auto-detailing business. Phase 1 establishes the executable foundation; customer booking features begin in later reviewed phases.
+Mobile detailing booking preview based on the inspected Fieldd flow, with the approved Detailly service catalog.
 
-## Local setup
+## Booking rules
 
-Requirements: Node.js 24, pnpm 11, and Docker.
+- Mobile service only; Interior, Exterior and Full Detail packages for four vehicle categories.
+- Combined 60-mile straight-line service area around ZIPs 54401, 54403, 54474, 54476, 54481, 54482 and 54467.
+- Monday–Sunday, 9am–9pm, America/Chicago; one crew.
+- Crew occupancy is service duration plus a 45-minute travel/setup buffer. Start times use 15-minute increments.
+- Sales tax 5.5%; required deposit 50%; all amounts calculated server-side.
 
-1. Copy `.env.example` to `.env.local` and use the local database URL below:
+## Run locally
 
-   `DATABASE_URL=postgresql://detailly:detailly_local_only@localhost:5432/detailly`
+Use Node 24 and pnpm 11, then:
 
-2. Install dependencies with `pnpm install`.
-3. Start PostgreSQL with `docker compose up -d postgres`.
-4. Apply migrations with `pnpm db:migrate` and verify with `pnpm db:check`.
-5. Start the application with `pnpm dev`.
+```sh
+pnpm install --frozen-lockfile
+pnpm dev
+```
 
-The application is at `http://localhost:3000`; runtime readiness is at `http://localhost:3000/api/health`.
+The canonical project folder is `/Users/dylanseis/dev/detailly`. Build with `pnpm build`; check with `pnpm validate`.
 
-## Validation
+## Current capability
 
-- `pnpm format:check`
-- `pnpm lint`
-- `pnpm typecheck`
-- `pnpm test`
-- `pnpm build`
-- `pnpm test:browser`
+The complete guest booking interface and quote/time-preview endpoints work. This is not yet a live booking system: database-backed appointment storage and holds, address geocoding, private uploads, payment-provider integration, authentication and notifications remain unfinished. Preview checkout never charges or confirms a real appointment.
 
-`pnpm validate` runs the non-browser checks. Browser tests start the application automatically. Database migration and readiness checks require the local PostgreSQL container.
+See `BOOKING_BUILD.md` for the reference review and implementation details, `BUSINESS_SETTINGS.md` for approved geographic/scheduling policy, and `docs/service-area/` for the service-area map, boundaries and ZIP search.
 
-Product, architectural, data, and phased delivery decisions live in the root Markdown documents. Read `CLAUDE.md` before changing the repository.
+Prior Git history remains available; the current files represent this build.

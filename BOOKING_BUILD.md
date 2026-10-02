@@ -1,6 +1,6 @@
 # Detailly booking build
 
-The customer booking interface is implemented and locally runnable. It is a preview, not a production booking system. The original `/Users/dylanseis/dev/detailly` checkout had all tracked source files deleted; those deletions were preserved. This separate build starts from that repository's HEAD and preserves its stack and lockfile.
+The customer booking interface is implemented and locally runnable. It is a preview, not a production booking system. The new build now replaces the previous working files in `/Users/dylanseis/dev/detailly` at the owner’s request and preserves the repository’s stack, lockfile and Git history.
 
 ## Inspected reference
 
@@ -61,4 +61,4 @@ Sample time choices are visibly marked as preview. Add Card/BOOK NOW opens an ex
 
 Install the pinned dependencies with `pnpm install --frozen-lockfile`, then run `pnpm dev`. The current preview is http://127.0.0.1:3100/.
 
-No deployment, live resources, commits or changes to the original deleted checkout were made. Next step is configuring and implementing the server booking/payment pipeline, then verifying it in provider sandboxes before launch.
+The owner requested committing this build, replacing the original checkout and updating GitHub. No live booking services have been deployed. Next step is configuring and implementing the server booking/payment pipeline, then verifying it in provider sandboxes before launch.
