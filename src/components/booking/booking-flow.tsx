@@ -242,9 +242,34 @@ export function BookingFlow({
   const today = new Date().toLocaleDateString("en-CA", {
     timeZone: "America/Chicago"
   });
+  const appRef = useRef<HTMLElement>(null);
+  const dockRef = useRef<HTMLDivElement>(null);
+  const modalFooterRef = useRef<HTMLElement>(null);
   const modalOpen = !!(detail || vehicleModal || payment || basket);
+  useEffect(() => {
+    const measure = () => {
+      appRef.current?.style.setProperty(
+        "--booking-dock-height",
+        `${dockRef.current?.offsetHeight ?? 0}px`
+      );
+      appRef.current?.style.setProperty(
+        "--modal-dock-height",
+        `${modalFooterRef.current?.offsetHeight ?? 0}px`
+      );
+    };
+    measure();
+    if (typeof ResizeObserver === "undefined") {
+      window.addEventListener("resize", measure);
+      return () => window.removeEventListener("resize", measure);
+    }
+    const observer = new ResizeObserver(measure);
+    if (dockRef.current) observer.observe(dockRef.current);
+    if (modalFooterRef.current) observer.observe(modalFooterRef.current);
+    measure();
+    return () => observer.disconnect();
+  }, [modalOpen, step]);
   return (
-    <main className="booking-app">
+    <main className="booking-app" ref={appRef}>
       <div className="booking-shell" inert={modalOpen}>
         {step === 0 ? (
           <section className="address-screen">
@@ -936,7 +961,7 @@ export function BookingFlow({
             {error}
           </p>
         )}
-        <div className="booking-bottom-dock">
+        <div className="booking-bottom-dock" ref={dockRef}>
           <BookingGuide
             key={`${step}-${category ?? "sizes"}`}
             message={guideMessage}
@@ -1177,7 +1202,7 @@ export function BookingFlow({
                 </>
               )}
             </div>
-            <footer className="modal-footer">
+            <footer className="modal-footer" ref={modalFooterRef}>
               <BookingGuide message={modalGuideMessage} />
               {detail ? (
                 <button

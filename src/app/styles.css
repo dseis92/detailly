@@ -2333,3 +2333,176 @@ small {
   margin-top: auto;
   padding: 16px 8px;
 }
+
+/* Mobile-first sizing, safe areas and measured space for the booking guide. */
+.booking-app {
+  width: 100%;
+  min-height: 100dvh;
+  overflow-wrap: anywhere;
+}
+.booking-app .booking-shell {
+  padding-bottom: calc(var(--booking-dock-height, 260px) + 24px);
+}
+.booking-app .modal-panel {
+  min-height: 0;
+  height: 100dvh;
+  overscroll-behavior: contain;
+  padding-bottom: calc(var(--modal-dock-height, 260px) + 24px);
+}
+.booking-app .booking-bottom-dock,
+.booking-app .modal-footer {
+  left: 50%;
+  transform: translateX(-50%);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.booking-app .modal-footer {
+  padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+}
+.booking-app .booking-bottom-dock:has(> .booking-guide:only-child) {
+  padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+}
+.booking-app .step-header,
+.booking-app .address-top {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+.booking-app .step-content,
+.booking-app .modal-content {
+  padding: 20px clamp(12px, 4vw, 22px);
+}
+.booking-app .card-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.booking-app .option-card {
+  min-width: 0;
+}
+.booking-app input,
+.booking-app select,
+.booking-app textarea {
+  font-size: 16px;
+  max-width: 100%;
+  scroll-margin-block: 90px 280px;
+}
+.booking-app button {
+  touch-action: manipulation;
+}
+.booking-app .icon-button,
+.booking-app .text-button {
+  min-height: 44px;
+  min-width: 44px;
+}
+.booking-app .toolbar-summary {
+  min-width: 0;
+  flex: 1;
+  white-space: normal;
+}
+.booking-app .booking-toolbar > .primary-button {
+  flex-shrink: 0;
+}
+.booking-app .calendar-grid {
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  padding-inline: 8px;
+}
+.booking-app .calendar-grid button {
+  width: 100%;
+  max-width: 44px;
+  min-height: 44px;
+}
+.booking-app .time-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.booking-app .earliest {
+  width: max-content;
+  max-width: calc(100% - 16px);
+}
+.booking-app .calendar-service > div,
+.booking-app .review-service > div,
+.booking-app .location-row > div,
+.booking-app .customer-row > div {
+  min-width: 0;
+}
+.booking-app .car-art {
+  flex-shrink: 0;
+}
+.booking-app .guide-name {
+  flex-wrap: wrap;
+  gap: 2px 7px;
+}
+.booking-app .service-illustration {
+  width: 100%;
+  margin: 0 0 8px;
+  border-radius: 12px;
+  flex-shrink: 0;
+}
+.booking-app .service-card {
+  padding: 8px 8px 20px;
+  gap: 12px;
+}
+.booking-app .address-entry {
+  padding-inline: clamp(16px, 5vw, 64px);
+}
+.booking-app .address-entry h1 {
+  font-size: clamp(24px, 5vw, 32px);
+}
+.booking-app .detail-image {
+  height: clamp(180px, 50vw, 260px);
+}
+@media (max-width: 359px) {
+  .booking-app .card-grid {
+    gap: 8px;
+  }
+  .booking-app .vehicle-card {
+    min-height: 215px;
+  }
+  .booking-app .vehicle-card strong {
+    font-size: 16px;
+  }
+  .booking-app .service-illustration {
+    height: 125px;
+  }
+  .booking-app .time-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .booking-app .booking-bottom-dock {
+    padding-inline: 12px;
+  }
+  .booking-app .guide-character {
+    width: 48px;
+    min-width: 48px;
+  }
+  .booking-app .guide-bubble {
+    padding: 10px 12px;
+  }
+  .booking-app .guide-bubble p {
+    font-size: 13px;
+  }
+  .booking-app .toolbar-summary {
+    padding: 10px;
+    font-size: 13px;
+  }
+}
+@media (max-height: 500px) and (orientation: landscape) {
+  .booking-app .booking-bottom-dock,
+  .booking-app .modal-footer {
+    position: static;
+    transform: none;
+  }
+  .booking-app .booking-shell,
+  .booking-app .modal-panel {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  .booking-app .modal-panel {
+    height: 100dvh;
+  }
+}
+
+@media (max-width: 279px) {
+  .booking-app .card-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .booking-app .booking-toolbar {
+    flex-wrap: wrap;
+  }
+  .booking-app .booking-toolbar > button {
+    width: 100%;
+  }
+}
