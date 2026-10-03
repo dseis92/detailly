@@ -27,7 +27,7 @@ type MapsApi = {
 };
 type GoogleWindow = Window & {
   google?: {
-    maps: MapsApi & {
+    maps: {
       importLibrary(name: "maps" | "places"): Promise<unknown>;
     };
   };
@@ -49,7 +49,14 @@ function loadMaps(key: string): Promise<MapsApi> {
         maps.importLibrary("maps"),
         maps.importLibrary("places")
       ])
-        .then(() => resolve(maps))
+        .then(([mapLibrary, placesLibrary]) => {
+          const mapTypes = mapLibrary as Pick<
+            MapsApi,
+            "Map" | "Circle" | "Geocoder"
+          >;
+          const placeTypes = placesLibrary as MapsApi["places"];
+          resolve({ ...mapTypes, places: placeTypes });
+        })
         .catch(reject);
     };
     script.onerror = () => {
@@ -164,11 +171,13 @@ export function GoogleAddress({
         widgetRef.current.replaceChildren(widget);
         setReady(true);
       })
-      .catch(() => {
-        if (!disposed)
+      .catch((cause: unknown) => {
+        if (!disposed) {
+          console.error("Google Maps initialization failed", cause);
           setError(
             "Google Maps is unavailable. Please enter your address manually."
           );
+        }
       });
     return () => {
       disposed = true;
