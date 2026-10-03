@@ -28,3 +28,9 @@ The complete guest booking interface and quote/time-preview endpoints work. This
 See `BOOKING_BUILD.md` for the reference review and implementation details, `BUSINESS_SETTINGS.md` for approved geographic/scheduling policy, and `docs/service-area/` for the service-area map, boundaries and ZIP search.
 
 Prior Git history remains available; the current files represent this build.
+
+## Google address search and location
+
+Set `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` in `.env.local` and in Vercel's environment settings, then rebuild. Enable Maps JavaScript API and Places API (New) on that Google Cloud project with billing enabled. Restrict this browser key to those APIs and HTTP referrers for your production domain and local preview. Never use a server key in this variable.
+
+The address screen offers Google autocomplete biased toward central Wisconsin, a selected-address map, and an explicit “Use my location” button. The customer must grant browser location access; their coordinates are sent to Google to find the street address. Denied location, provider errors, and missing configuration retain manual entry. Customers must confirm the detected street number. Autocomplete bias is not a service-area eligibility check; existing server serviceability rules remain separate.

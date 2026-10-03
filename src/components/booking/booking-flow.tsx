@@ -4,6 +4,7 @@ import type {
   CatalogPackage,
   VehicleCategory
 } from "@/modules/catalog-pricing/catalog";
+import { GoogleAddress } from "./google-address";
 import { ServiceVideo } from "./service-video";
 import { BookingGuide } from "./booking-guide";
 import { VehicleGraphic as Car } from "./vehicle-graphic";
@@ -290,6 +291,7 @@ export function BookingFlow({
               <h1 ref={heading} tabIndex={-1}>
                 Simply Enter Your Address To View Prices Or Book An Appointment
               </h1>
+              <GoogleAddress onSelect={setAddress} />
               <form
                 onSubmit={(e) => {
                   e.preventDefault();
