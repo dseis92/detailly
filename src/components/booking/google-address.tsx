@@ -25,7 +25,13 @@ type MapsApi = {
   };
   places: { PlaceAutocompleteElement: new () => Autocomplete };
 };
-type GoogleWindow = Window & { google?: { maps: MapsApi } };
+type GoogleWindow = Window & {
+  google?: {
+    maps: MapsApi & {
+      importLibrary(name: "maps" | "places"): Promise<unknown>;
+    };
+  };
+};
 let loading: Promise<MapsApi> | undefined;
 function loadMaps(key: string): Promise<MapsApi> {
   if (loading) return loading;
@@ -35,8 +41,16 @@ function loadMaps(key: string): Promise<MapsApi> {
     script.async = true;
     script.onload = () => {
       const maps = (window as GoogleWindow).google?.maps;
-      if (maps) resolve(maps);
-      else reject(new Error("Maps unavailable"));
+      if (!maps) {
+        reject(new Error("Maps unavailable"));
+        return;
+      }
+      void Promise.all([
+        maps.importLibrary("maps"),
+        maps.importLibrary("places")
+      ])
+        .then(() => resolve(maps))
+        .catch(reject);
     };
     script.onerror = () => {
       loading = undefined;
