@@ -4,13 +4,12 @@ import { useEffect, useRef, useState } from "react";
 
 type Coordinates = { lat: number; lng: number };
 type GooglePlace = {
-  formattedAddress?: string;
-  location?: { lat(): number; lng(): number };
-  fetchFields(options: { fields: string[] }): Promise<unknown>;
+  formatted_address?: string;
+  geometry?: { location?: { lat(): number; lng(): number } };
 };
-type Autocomplete = HTMLElement & {
-  includedRegionCodes: string[];
-  locationBias: { center: Coordinates; radius: number };
+type Autocomplete = {
+  addListener(event: "place_changed", handler: () => void): { remove(): void };
+  getPlace(): GooglePlace;
 };
 type MapsApi = {
   Map: new (
@@ -23,21 +22,22 @@ type MapsApi = {
       location: Coordinates;
     }): Promise<{ results: { formatted_address: string }[] }>;
   };
-  places: { PlaceAutocompleteElement: new () => Autocomplete };
+  places: {
+    Autocomplete: new (
+      input: HTMLInputElement,
+      options: object
+    ) => Autocomplete;
+  };
 };
 type GoogleWindow = Window & {
-  google?: {
-    maps: {
-      importLibrary(name: "maps" | "places"): Promise<unknown>;
-    };
-  };
+  google?: { maps: MapsApi };
 };
 let loading: Promise<MapsApi> | undefined;
 function loadMaps(key: string): Promise<MapsApi> {
   if (loading) return loading;
   loading = new Promise((resolve, reject) => {
     const script = document.createElement("script");
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(key)}&libraries=places&v=weekly&loading=async`;
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(key)}&libraries=places&v=weekly`;
     script.async = true;
     script.onload = () => {
       const maps = (window as GoogleWindow).google?.maps;
@@ -45,19 +45,11 @@ function loadMaps(key: string): Promise<MapsApi> {
         reject(new Error("Maps unavailable"));
         return;
       }
-      void Promise.all([
-        maps.importLibrary("maps"),
-        maps.importLibrary("places")
-      ])
-        .then(([mapLibrary, placesLibrary]) => {
-          const mapTypes = mapLibrary as Pick<
-            MapsApi,
-            "Map" | "Circle" | "Geocoder"
-          >;
-          const placeTypes = placesLibrary as MapsApi["places"];
-          resolve({ ...mapTypes, places: placeTypes });
-        })
-        .catch(reject);
+      if (!maps.places?.Autocomplete || !maps.Map || !maps.Geocoder) {
+        reject(new Error("Google Places library unavailable"));
+        return;
+      }
+      resolve(maps);
     };
     script.onerror = () => {
       loading = undefined;
@@ -74,8 +66,8 @@ export function GoogleAddress({
   onSelect(address: string): void;
 }) {
   const [key, setKey] = useState("");
-  const widgetRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const selectRef = useRef(onSelect);
   const apiRef = useRef<MapsApi>(null);
   const centerRef = useRef<((point: Coordinates) => void) | null>(null);
@@ -105,11 +97,11 @@ export function GoogleAddress({
   useEffect(() => {
     if (!key || key.startsWith("replace_")) return;
     let disposed = false;
-    let widget: Autocomplete | undefined;
-    let select: EventListener | undefined;
+    let autocomplete: Autocomplete | undefined;
+    let placeListener: { remove(): void } | undefined;
     void loadMaps(key)
       .then((api) => {
-        if (disposed || !widgetRef.current || !mapRef.current) return;
+        if (disposed || !inputRef.current || !mapRef.current) return;
         apiRef.current = api;
         const center = { lat: 44.75, lng: -89.63 };
         const map = new api.Map(mapRef.current, {
@@ -133,42 +125,19 @@ export function GoogleAddress({
           map.setZoom(16);
           marker.setCenter(point);
         };
-        widget = new api.places.PlaceAutocompleteElement();
-        widget.includedRegionCodes = ["us"];
-        widget.locationBias = { center, radius: 50000 };
-        widget.setAttribute("aria-label", "Search service address with Google");
-        select = (event) => {
-          const prediction = (
-            event as Event & { placePrediction: { toPlace(): GooglePlace } }
-          ).placePrediction;
-          const place = prediction.toPlace();
-          void place
-            .fetchFields({ fields: ["formattedAddress", "location"] })
-            .then(() => {
-              if (disposed) return;
-              if (place.formattedAddress)
-                selectRef.current(place.formattedAddress);
-              if (place.location)
-                centerRef.current?.({
-                  lat: place.location.lat(),
-                  lng: place.location.lng()
-                });
-              setError("");
-            })
-            .catch(() => {
-              if (!disposed)
-                setError(
-                  "Couldn’t load that address. Please enter it manually."
-                );
-            });
-        };
-        widget.addEventListener("gmp-select", select);
-        widget.addEventListener("gmp-error", () =>
-          setError(
-            "Address search is unavailable. Please enter your address manually."
-          )
-        );
-        widgetRef.current.replaceChildren(widget);
+        autocomplete = new api.places.Autocomplete(inputRef.current, {
+          componentRestrictions: { country: "us" },
+          fields: ["formatted_address", "geometry.location"]
+        });
+        placeListener = autocomplete.addListener("place_changed", () => {
+          const place = autocomplete?.getPlace();
+          if (place?.formatted_address)
+            selectRef.current(place.formatted_address);
+          const location = place?.geometry?.location;
+          if (location)
+            centerRef.current?.({ lat: location.lat(), lng: location.lng() });
+          setError("");
+        });
         setReady(true);
       })
       .catch((cause: unknown) => {
@@ -181,8 +150,7 @@ export function GoogleAddress({
       });
     return () => {
       disposed = true;
-      if (widget && select) widget.removeEventListener("gmp-select", select);
-      widget?.remove();
+      placeListener?.remove();
     };
   }, [key]);
   async function locate() {
@@ -231,8 +199,19 @@ export function GoogleAddress({
   }
   if (!key || key.startsWith("replace_")) return null;
   return (
-    <section className="google-address" aria-label="Find your service address">
-      <div ref={widgetRef} />
+    <section
+      className="google-address"
+      aria-label="Find your service address"
+      data-google-ready={ready ? "true" : "false"}
+    >
+      <input
+        ref={inputRef}
+        className="google-address-autocomplete"
+        type="search"
+        aria-label="Search service address with Google"
+        placeholder="Search address or use your location"
+        autoComplete="off"
+      />
       {ready && (
         <>
           <button
