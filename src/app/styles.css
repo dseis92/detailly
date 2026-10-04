@@ -2531,11 +2531,11 @@ small {
   color-scheme: light;
 }
 .booking-app .google-address-map {
-  position: fixed;
+  position: fixed !important;
   z-index: -1;
-  inset: 0;
-  width: 100vw;
-  height: 100dvh;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: 100dvh !important;
   border-radius: 0;
   overflow: hidden;
 }
