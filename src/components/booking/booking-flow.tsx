@@ -292,44 +292,10 @@ export function BookingFlow({
                 Simply Enter Your Address To View Prices Or Book An Appointment
               </h1>
               <GoogleAddress onSelect={setAddress} />
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  advance();
-                }}
-              >
-                <label className="address-search">
-                  <span aria-hidden="true">⌕</span>
-                  <input
-                    aria-label="Service address"
-                    placeholder="Enter the street number and full address"
-                    value={address}
-                    onChange={(e) => setAddress(e.target.value)}
-                  />
-                  <button
-                    className="icon-button"
-                    aria-label="Clear address"
-                    type="button"
-                    onClick={() => setAddress("")}
-                  >
-                    ×
-                  </button>
-                </label>
-                {address.trim().length >= 8 && (
-                  <button className="address-result" type="submit">
-                    <span>⌖</span>
-                    <span>
-                      {address}
-                      <small>Use this service address</small>
-                    </span>
-                    <b>›</b>
-                  </button>
-                )}
-              </form>
               <p className="manual-hint">
-                Enter your full address, including city and ZIP code. We serve
-                within 60 miles of Wausau, Rothschild, Schofield, Stevens Point
-                and Plover.
+                Choose your address from Google’s suggestions. We serve within
+                60 miles of Wausau, Rothschild, Schofield, Stevens Point and
+                Plover.
               </p>
             </div>
           </section>
