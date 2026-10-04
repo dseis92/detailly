@@ -1,0 +1,1 @@
+ALTER TABLE "appointments" ADD COLUMN "customer_address" text DEFAULT '' NOT NULL;

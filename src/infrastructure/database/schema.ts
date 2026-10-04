@@ -1,4 +1,5 @@
 import {
+  boolean,
   check,
   index,
   integer,
@@ -34,6 +35,12 @@ export const holdStatus = pgEnum("hold_status", [
   "converted",
   "released",
   "expired"
+]);
+export const appointmentStatus = pgEnum("appointment_status", [
+  "request_received",
+  "confirmed",
+  "cancelled",
+  "completed"
 ]);
 
 export const businesses = pgTable(
@@ -511,6 +518,110 @@ export const slotHolds = pgTable(
     check(
       "slot_holds_expiry_after_start",
       sql`${table.expiresAt} > ${table.createdAt}`
+    )
+  ]
+);
+
+export const appointments = pgTable(
+  "appointments",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    publicReference: text("public_reference").notNull(),
+    businessId: uuid("business_id")
+      .notNull()
+      .references(() => businesses.id, { onDelete: "restrict" }),
+    customerId: uuid("customer_id")
+      .notNull()
+      .references(() => customers.id, { onDelete: "restrict" }),
+    status: appointmentStatus("status").notNull().default("request_received"),
+    startsAt: timestamp("starts_at", {
+      withTimezone: true,
+      mode: "date"
+    }).notNull(),
+    serviceEndsAt: timestamp("service_ends_at", {
+      withTimezone: true,
+      mode: "date"
+    }).notNull(),
+    blockedUntil: timestamp("blocked_until", {
+      withTimezone: true,
+      mode: "date"
+    }).notNull(),
+    timezone: text("timezone").notNull(),
+    serviceAddress: text("service_address").notNull(),
+    customerAddress: text("customer_address").notNull().default(""),
+    vehicleDescription: text("vehicle_description").notNull(),
+    vehicleCategory: text("vehicle_category").notNull(),
+    waterAvailable: boolean("water_available").notNull(),
+    electricityAvailable: boolean("electricity_available").notNull(),
+    conditionNotes: text("condition_notes").notNull().default(""),
+    accessNotes: text("access_notes").notNull().default(""),
+    referralSource: text("referral_source").notNull(),
+    subtotalMinor: integer("subtotal_minor").notNull(),
+    discountMinor: integer("discount_minor").notNull(),
+    taxMinor: integer("tax_minor").notNull(),
+    totalMinor: integer("total_minor").notNull(),
+    depositMinor: integer("deposit_minor").notNull(),
+    currency: text("currency").notNull().default("USD"),
+    idempotencyKey: text("idempotency_key").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true, mode: "date" })
+      .notNull()
+      .defaultNow()
+  },
+  (table) => [
+    uniqueIndex("appointments_public_reference_unique").on(
+      table.publicReference
+    ),
+    uniqueIndex("appointments_idempotency_unique").on(
+      table.businessId,
+      table.idempotencyKey
+    ),
+    index("appointments_business_start_idx").on(
+      table.businessId,
+      table.startsAt
+    ),
+    index("appointments_customer_created_idx").on(
+      table.customerId,
+      table.createdAt
+    ),
+    check(
+      "appointments_interval_order",
+      sql`${table.serviceEndsAt} > ${table.startsAt} AND ${table.blockedUntil} >= ${table.serviceEndsAt}`
+    ),
+    check(
+      "appointments_amounts_nonnegative",
+      sql`${table.subtotalMinor} >= 0 AND ${table.discountMinor} >= 0 AND ${table.taxMinor} >= 0 AND ${table.totalMinor} >= 0 AND ${table.depositMinor} >= 0`
+    )
+  ]
+);
+
+export const appointmentItems = pgTable(
+  "appointment_items",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    appointmentId: uuid("appointment_id")
+      .notNull()
+      .references(() => appointments.id, { onDelete: "restrict" }),
+    packageId: text("package_id").notNull(),
+    displayName: text("display_name").notNull(),
+    quantity: integer("quantity").notNull().default(1),
+    unitAmountMinor: integer("unit_amount_minor").notNull(),
+    durationMinutes: integer("duration_minutes").notNull(),
+    inclusions: jsonb("inclusions").$type<string[]>().notNull(),
+    sortOrder: integer("sort_order").notNull()
+  },
+  (table) => [
+    index("appointment_items_appointment_idx").on(table.appointmentId),
+    check("appointment_items_quantity_positive", sql`${table.quantity} > 0`),
+    check(
+      "appointment_items_amount_nonnegative",
+      sql`${table.unitAmountMinor} >= 0`
+    ),
+    check(
+      "appointment_items_duration_nonnegative",
+      sql`${table.durationMinutes} >= 0`
     )
   ]
 );

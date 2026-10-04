@@ -8,7 +8,7 @@ Status: Phase 0 planning baseline. Foundation defaults were approved on 2026-10-
 - One Next.js application managed with `pnpm`, rather than a monorepo.
 - Vercel as the initial deployment target and managed PostgreSQL as the production database category; local development uses PostgreSQL in Docker.
 - Drizzle as the ORM/migration layer.
-- Auth.js with guest checkout and email-based sign-in; no application-managed passwords by default.
+- Supabase Auth with guest checkout and verified email-link sign-in; no application-managed passwords by default.
 - Configurable initial defaults of `en-US`, `USD`, and `America/Chicago`.
 - No production services, live provider accounts, or other live resources are created during foundation work.
 

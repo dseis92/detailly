@@ -9,6 +9,7 @@ import { ServiceVideo } from "./service-video";
 import { BookingGuide } from "./booking-guide";
 import { VehicleGraphic as Car } from "./vehicle-graphic";
 import type { Quote } from "@/modules/catalog-pricing/quote";
+import Link from "next/link";
 
 const categories: { id: VehicleCategory; name: string; shape: string }[] = [
   { id: "sedan-coupe", name: "Coupe", shape: "coupe" },
@@ -77,7 +78,11 @@ export function BookingFlow({
   );
   const [day, setDay] = useState("");
   const [time, setTime] = useState("");
-  const [timeChoices, setTimeChoices] = useState<string[]>([]);
+  const [timeChoices, setTimeChoices] = useState<
+    { label: string; startsAt: string }[]
+  >([]);
+  const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
+  const [bookingReference, setBookingReference] = useState<string | null>(null);
   const [timesLoading, setTimesLoading] = useState(false);
   const timeRequest = useRef(0);
   const [vehicle, setVehicle] = useState("");
@@ -102,6 +107,8 @@ export function BookingFlow({
   const heading = useRef<HTMLHeadingElement>(null);
   const quoteRequest = useRef(0);
   const closeButton = useRef<HTMLButtonElement>(null);
+  const idempotencyKey = useRef("");
+  const submissionFingerprint = useRef("");
   const photoRef = useRef(photos);
   useEffect(() => {
     photoRef.current = photos;
@@ -130,7 +137,9 @@ export function BookingFlow({
       "Pick your perfect time! We leave 45 minutes after every detail for travel and setup.",
       "Tell me about your ride! Add its condition, photos, and whether water and electricity are available.",
       "Who’s getting the shine? Add your contact details. You can continue as a guest.",
-      "One last look! Check your details and 50% deposit. This preview won’t charge or book anything yet."
+      bookingReference
+        ? "You’re on the list! This request is saved, and the team will follow up to confirm your appointment and deposit."
+        : "One last look! Review your service request and 50% deposit before sending it in."
     ][step] ?? "Let’s get your ride looking its best!";
   const modalGuideMessage = detail
     ? "Here’s what’s included! Take a look, then add this package when you’re ready."
@@ -153,6 +162,7 @@ export function BookingFlow({
     setSelected(ids);
     setDay("");
     setTime("");
+    setSelectedSlot(null);
     setQuote(null);
     setError("");
     if (!ids.length) {
@@ -181,6 +191,7 @@ export function BookingFlow({
     const requestId = ++timeRequest.current;
     setDay(date);
     setTime("");
+    setSelectedSlot(null);
     setTimeChoices([]);
     setTimesLoading(true);
     setError("");
@@ -192,14 +203,73 @@ export function BookingFlow({
       });
       if (!response.ok)
         throw new Error("Unable to load appointment times. Please try again.");
-      const result = (await response.json()) as { slots: { label: string }[] };
-      if (requestId === timeRequest.current)
-        setTimeChoices(result.slots.map((slot) => slot.label));
+      const result = (await response.json()) as {
+        slots: { label: string; startsAt: string }[];
+      };
+      if (requestId === timeRequest.current) setTimeChoices(result.slots);
     } catch (e) {
       if (requestId === timeRequest.current)
         setError(e instanceof Error ? e.message : "Unable to load times.");
     } finally {
       if (requestId === timeRequest.current) setTimesLoading(false);
+    }
+  }
+  async function submitBookingRequest() {
+    if (!quote || !selectedSlot || !category) {
+      setError(
+        "Review your vehicle and choose a time before sending your request."
+      );
+      return;
+    }
+    setBusy(true);
+    setError("");
+    const submission = {
+      address,
+      customerAddress: customer.mailing || address,
+      firstName: customer.first,
+      lastName: customer.last,
+      email: customer.email,
+      phone: customer.phone,
+      referral: customer.referral,
+      vehicle,
+      vehicleCategory: category,
+      packageIds: selected,
+      startsAt: selectedSlot,
+      waterAvailable: water === "Yes",
+      electricityAvailable: electricity === "Yes",
+      conditionNotes: condition,
+      accessNotes: notes
+    };
+    const fingerprint = JSON.stringify(submission);
+    if (submissionFingerprint.current !== fingerprint) {
+      submissionFingerprint.current = fingerprint;
+      idempotencyKey.current = crypto.randomUUID();
+    }
+    try {
+      const response = await fetch("/api/booking/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...submission,
+          idempotencyKey: idempotencyKey.current
+        })
+      });
+      const result = (await response.json()) as {
+        reference?: string;
+        error?: string;
+      };
+      if (!response.ok || !result.reference) {
+        throw new Error(result.error || "Could not save your request.");
+      }
+      setBookingReference(result.reference);
+    } catch (caught) {
+      setError(
+        caught instanceof Error
+          ? caught.message
+          : "Could not save your request."
+      );
+    } finally {
+      setBusy(false);
     }
   }
   function advance() {
@@ -527,13 +597,16 @@ export function BookingFlow({
                   <div className="time-grid">
                     {timeChoices.map((t) => (
                       <button
-                        key={t}
+                        key={t.startsAt}
                         disabled={!day}
-                        aria-pressed={time === t}
-                        className={time === t ? "chosen" : ""}
-                        onClick={() => setTime(t)}
+                        aria-pressed={time === t.label}
+                        className={time === t.label ? "chosen" : ""}
+                        onClick={() => {
+                          setTime(t.label);
+                          setSelectedSlot(t.startsAt);
+                        }}
                       >
-                        {t}
+                        {t.label}
                       </button>
                     ))}
                   </div>
@@ -771,20 +844,33 @@ export function BookingFlow({
                     or
                     <span />
                   </div>
-                  <button
-                    type="button"
-                    className="soft-button"
-                    onClick={() =>
-                      setError(
-                        "Account sign-in is not configured. Continue as guest to review your booking."
-                      )
-                    }
-                  >
+                  <Link className="soft-button" href="/sign-in">
                     Login / Sign up
-                  </button>
+                  </Link>
                 </form>
               )}
-              {step === 6 && (
+              {step === 6 && bookingReference && (
+                <section className="request-result" role="status">
+                  <p className="kicker">Request saved</p>
+                  <h2>Thanks, {customer.first}!</h2>
+                  <p>
+                    Your request reference is{" "}
+                    <strong>{bookingReference}</strong>. It is not a confirmed
+                    appointment yet, no deposit was charged, and the team still
+                    needs to verify your address and time.
+                  </p>
+                  {photos.length > 0 && (
+                    <p>Your photos were not uploaded with this request.</p>
+                  )}
+                  <Link
+                    className="primary-action"
+                    href="/sign-in?next=%2Faccount"
+                  >
+                    Sign in to view requests <span aria-hidden="true">↗</span>
+                  </Link>
+                </section>
+              )}
+              {step === 6 && !bookingReference && (
                 <div className="confirmation">
                   <section className="review-card">
                     <div className="label-row">
@@ -904,16 +990,10 @@ export function BookingFlow({
                           {money(quote.totalMinor - quote.depositMinor)}
                         </span>
                       </div>
-                      <button
-                        className="soft-button"
-                        onClick={() => setPayment(true)}
-                      >
-                        Add Card
-                      </button>
                       <p className="setup-notice">
-                        Preview only. Your appointment and payment are not
-                        submitted. Live scheduling, service-area verification,
-                        private uploads and secure payment must be configured.
+                        This sends a booking request. It does not confirm or
+                        reserve the time, verify the address, upload photos, or
+                        charge the required 50% deposit.
                       </p>
                     </section>
                   )}
@@ -932,7 +1012,7 @@ export function BookingFlow({
             key={`${step}-${category ?? "sizes"}`}
             message={guideMessage}
           />
-          {step !== 5 && (
+          {step !== 5 && !bookingReference && (
             <footer
               className={`booking-toolbar ${step === 0 ? "address-toolbar" : ""}`}
             >
@@ -975,10 +1055,14 @@ export function BookingFlow({
               <button
                 className="primary-button"
                 disabled={busy || (step === 2 && !quote)}
-                onClick={step === 6 ? () => setPayment(true) : advance}
+                onClick={
+                  step === 6 ? () => void submitBookingRequest() : advance
+                }
               >
                 {step === 6
-                  ? `BOOK NOW · ${quote ? money(quote.depositMinor) : ""}`
+                  ? busy
+                    ? "SENDING REQUEST…"
+                    : "SUBMIT REQUEST"
                   : "Next"}
               </button>
             </footer>
@@ -1002,6 +1086,9 @@ export function BookingFlow({
             >
               View services
             </button>
+            <Link href="/sign-in" onClick={() => setMenu(false)}>
+              My bookings / login
+            </Link>
             <button onClick={() => setMenu(false)}>Close</button>
           </div>
         )}

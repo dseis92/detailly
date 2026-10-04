@@ -12,7 +12,7 @@ The ZIP search output contains 187 ZCTA reference points within the combined rad
 
 Implemented `src/modules/business-config/booking-policy.ts`, coordinates with provenance, coordinate-based serviceability evaluator, and a server-controlled `/api/booking/times` preview endpoint. Main booking calendar uses that endpoint instead of sample time choices. Client duration, hours, and capacity do not override server policy. Existing availability preview also uses these operating windows.
 
-Still required before live booking: geocoding integration, database-backed holds/appointments, payments, and payment setup. The owner approved a fixed 45-minute post-service travel/setup buffer; no driving-distance limit was invented. The existing generic availability search route remains a separate preview utility; it is not a reservation endpoint.
+Still required before live booking: server-side address verification, database-backed conflict-safe holds and appointment confirmation, payments, and payment setup. Booking requests can be stored, but they do not reserve crew capacity. The owner approved a fixed 45-minute post-service travel/setup buffer; no driving-distance limit was invented. The existing generic availability search route remains a separate preview utility; it is not a reservation endpoint.
 
 Validation: strict typecheck, unit tests, formatting and production build run after the change; results are recorded in the chat. Database-backed double-booking prevention remains unverified because the preview has no configured booking database.
 

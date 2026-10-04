@@ -24,7 +24,7 @@ Each phase is independently reviewable and requires explicit approval before the
 - **Completion criteria:** fresh documented setup passes install, lint, strict typecheck, unit/integration, production build, and browser smoke; migration up/down strategy is reviewed; no secrets committed.
 - **Risks:** version incompatibility, environment drift, serverless/database pooling; mitigate with pinned versions, lockfile, supported runtimes, and real-Postgres CI.
 
-Approved inputs for this phase (2026-10-01): one Next.js application managed with `pnpm`; strict TypeScript; Drizzle; local PostgreSQL in Docker; managed PostgreSQL and Vercel as production targets; Auth.js with guest checkout and email sign-in; configurable `en-US`, `USD`, and `America/Chicago` defaults; no live production resources.
+Approved inputs for this phase (2026-10-01, provider updated 2026-10-03): one Next.js application managed with `pnpm`; strict TypeScript; Drizzle; local PostgreSQL in Docker; Supabase PostgreSQL/Auth and Vercel as production targets; verified email-link sign-in with guest checkout; configurable `en-US`, `USD`, and `America/Chicago` defaults; no live production resources.
 
 ## Phase 2 — Identity, business configuration, and authorization
 

@@ -7,7 +7,7 @@ let client: ReturnType<typeof postgres> | undefined;
 
 function getClient(): ReturnType<typeof postgres> {
   client ??= postgres(getServerEnv().DATABASE_URL, {
-    max: 5,
+    max: 1,
     connect_timeout: 3,
     idle_timeout: 20,
     prepare: false

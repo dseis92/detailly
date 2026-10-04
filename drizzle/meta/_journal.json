@@ -29,6 +29,20 @@
       "when": 1790918429973,
       "tag": "0003_deep_lord_tyger",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1791080043537,
+      "tag": "0004_booking_portal_foundation",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1791080553282,
+      "tag": "0005_booking_customer_address",
+      "breakpoints": true
     }
   ]
 }

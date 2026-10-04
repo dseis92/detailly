@@ -1,10 +1,10 @@
 # Phase 0 stack and provider research
 
-Accessed **2026-10-01**. Sources are first-party product documentation. This memo recommends capabilities and integration boundaries; dependency versions must be selected from the package registry during implementation and locked in the repository rather than inferred here.
+Accessed **2026-10-01**. Sources are first-party product documentation. This memo recommends capabilities and integration boundaries; dependency versions must be selected from the package registry during implementation and locked in the repository rather than inferred here. The initial Auth.js/provider-neutral database recommendation was updated by the owner on 2026-10-03; see [ADR 0001](docs/decisions/0001-supabase-auth-and-postgres.md).
 
 ## Decision summary
 
-Use a **strict-TypeScript Next.js App Router modular monolith**, deployed to **Vercel**, backed by managed **PostgreSQL** and **Drizzle ORM/Kit**. Use **Auth.js** for account sessions, **Stripe PaymentIntents** for required prepayment, **Google Maps Platform Places Autocomplete (New)** for address entry, an **S3-compatible object store** through a narrow presigned-upload adapter, **Resend** for transactional email, **Twilio Messaging** for SMS, and **Playwright Test** for critical browser journeys. Keep every vendor behind an application-owned interface so providers can be substituted without changing booking, pricing, scheduling, or payment-domain rules.
+Use a **strict-TypeScript Next.js App Router modular monolith**, deployed to **Vercel**, backed by **Supabase PostgreSQL/Auth** and **Drizzle ORM/Kit**. Use **Supabase Auth** for verified email-link sessions, **Stripe PaymentIntents** for required prepayment, **Google Maps Platform Places Autocomplete (New)** for address entry, an **S3-compatible object store** through a narrow presigned-upload adapter, **Resend** for transactional email, **Twilio Messaging** for SMS, and **Playwright Test** for critical browser journeys. Keep every vendor behind an application-owned interface so providers can be substituted without changing booking, pricing, scheduling, or payment-domain rules.
 
 ## Framework: Next.js + TypeScript
 
@@ -24,7 +24,7 @@ Use a **strict-TypeScript Next.js App Router modular monolith**, deployed to **V
 
 ## Authentication and authorization
 
-**Recommendation:** Auth.js for browser authentication and session lifecycle, with its PostgreSQL/Drizzle adapter when persisted accounts are introduced. Start with email magic-link and/or one well-supported OAuth provider; allow guest checkout separately. Store application roles and business membership in owned tables and enforce authorization server-side on every protected operation.
+**Selected provider:** Supabase Auth for browser authentication and session lifecycle, with cookie sessions through `@supabase/ssr`. Allow guest checkout separately. Store application roles and business membership in owned tables and enforce authorization server-side on every protected operation. The earlier Auth.js comparison below is retained as the provider research that preceded the owner's selection.
 
 Auth.js supports Next.js integration, database adapters, OAuth providers, and database or JWT session strategies. Authentication proves identity; it does not replace application authorization. Use secure cookies, CSRF protections supplied by the framework/library, short-lived sessions appropriate to the role, and explicit account-linking policy. ([Auth.js Next.js guide](https://authjs.dev/getting-started/installation?framework=next-js), [session strategies](https://authjs.dev/concepts/session-strategies), [Drizzle adapter](https://authjs.dev/getting-started/adapters/drizzle))
 

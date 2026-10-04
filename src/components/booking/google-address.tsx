@@ -422,7 +422,26 @@ export function GoogleAddress({
       { timeout: 10000, maximumAge: 60000, enableHighAccuracy: true }
     );
   }
-  if (!key || key.startsWith("replace_")) return null;
+  if (!key || key.startsWith("replace_")) {
+    return (
+      <section
+        className="google-address"
+        aria-label="Find your service address"
+      >
+        <label className="sr-only" htmlFor="manual-service-address">
+          Service address
+        </label>
+        <input
+          id="manual-service-address"
+          className="manual-address-input"
+          autoComplete="street-address"
+          placeholder="Enter your service address"
+          onChange={(event) => onSelect(event.target.value)}
+        />
+        <p className="manual-hint">{serviceAreaNote}</p>
+      </section>
+    );
+  }
   return (
     <section
       className="google-address"

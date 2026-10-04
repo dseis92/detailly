@@ -1,5 +1,7 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
-import { desc, eq, inArray } from "drizzle-orm";
+import { and, desc, eq, inArray } from "drizzle-orm";
+import { SignOutButton } from "@/components/auth/sign-out-button";
 import { getAuthenticatedActors } from "@/infrastructure/auth/supabase/actor";
 import { hasSupabaseConfig } from "@/infrastructure/auth/supabase/server";
 import { getDatabase } from "@/infrastructure/database/client";
@@ -8,21 +10,20 @@ import {
   appointments,
   customers
 } from "@/infrastructure/database/schema";
-import { SignOutButton } from "@/components/auth/sign-out-button";
 
 export const dynamic = "force-dynamic";
 
-export default async function AdminPage() {
-  if (!hasSupabaseConfig()) redirect("/sign-in?next=%2Fadmin");
-  let actor;
+export default async function AccountPage() {
+  if (!hasSupabaseConfig()) redirect("/sign-in?next=%2Faccount");
+  let actors;
   try {
-    actor = (await getAuthenticatedActors()).find(
-      (candidate) => candidate.role === "owner"
-    );
+    actors = await getAuthenticatedActors();
   } catch {
-    redirect("/sign-in?next=%2Fadmin&error=setup");
+    redirect("/sign-in?next=%2Faccount&error=setup");
   }
-  if (!actor) redirect("/account");
+  const actor = actors[0];
+  if (!actor) redirect("/sign-in?next=%2Faccount");
+
   const bookings = await getDatabase()
     .select({
       id: appointments.id,
@@ -31,19 +32,20 @@ export default async function AdminPage() {
       startsAt: appointments.startsAt,
       timezone: appointments.timezone,
       address: appointments.serviceAddress,
-      customerAddress: appointments.customerAddress,
       vehicle: appointments.vehicleDescription,
       totalMinor: appointments.totalMinor,
-      depositMinor: appointments.depositMinor,
-      customerName: customers.displayName,
-      email: customers.email,
-      phone: customers.phone
+      depositMinor: appointments.depositMinor
     })
     .from(appointments)
     .innerJoin(customers, eq(customers.id, appointments.customerId))
-    .where(eq(appointments.businessId, actor.businessId))
+    .where(
+      and(
+        eq(appointments.businessId, actor.businessId),
+        eq(customers.email, actor.email)
+      )
+    )
     .orderBy(desc(appointments.createdAt))
-    .limit(100);
+    .limit(50);
   const itemRows = bookings.length
     ? await getDatabase()
         .select({
@@ -64,24 +66,21 @@ export default async function AdminPage() {
     names.push(item.name);
     itemsByAppointment.set(item.appointmentId, names);
   }
+
   return (
-    <main className="admin-page" aria-labelledby="admin-title">
+    <main className="admin-page" aria-labelledby="account-title">
       <div className="admin-shell portal-shell">
         <div className="portal-topline">
-          <p className="kicker">Detailly / owner portal</p>
+          <p className="kicker">Detailly / customer portal</p>
           <SignOutButton />
         </div>
-        <h1 id="admin-title">Good morning, {actor.displayName}.</h1>
-        <p>
-          Booking requests and customer details are kept in this private
-          workspace.
-        </p>
-        <div className="admin-status" role="status">
-          <span aria-hidden="true">●</span> Signed in as {actor.role} ·{" "}
-          {bookings.length} request{bookings.length === 1 ? "" : "s"}
-        </div>
-        <section className="portal-bookings" aria-labelledby="requests-title">
-          <h2 id="requests-title">Booking requests</h2>
+        <h1 id="account-title">Hi, {actor.displayName}.</h1>
+        <p>Your saved booking requests and appointments are here.</p>
+        <section
+          className="portal-bookings"
+          aria-labelledby="your-bookings-title"
+        >
+          <h2 id="your-bookings-title">Your bookings</h2>
           {bookings.length ? (
             <div className="portal-booking-list">
               {bookings.map((booking) => (
@@ -90,13 +89,12 @@ export default async function AdminPage() {
                   key={booking.reference}
                 >
                   <div className="portal-card-heading">
-                    <strong>{booking.customerName}</strong>
+                    <strong>{booking.reference}</strong>
                     <span className="request-status">
                       {booking.status.replaceAll("_", " ")}
                     </span>
                   </div>
                   <p>
-                    {booking.reference} ·{" "}
                     {new Intl.DateTimeFormat("en-US", {
                       dateStyle: "medium",
                       timeStyle: "short",
@@ -109,24 +107,29 @@ export default async function AdminPage() {
                   <p>
                     {(itemsByAppointment.get(booking.id) ?? []).join(" · ")}
                   </p>
-                  <p>Customer address: {booking.customerAddress}</p>
                   <p>
-                    <a href={`mailto:${booking.email}`}>{booking.email}</a>
-                    {booking.phone ? ` · ${booking.phone}` : ""}
+                    ${(booking.totalMinor / 100).toFixed(2)} estimate · $
+                    {(booking.depositMinor / 100).toFixed(2)} deposit required
                   </p>
-                  <p>
-                    ${(booking.totalMinor / 100).toFixed(2)} total · $
-                    {(booking.depositMinor / 100).toFixed(2)} deposit due
-                  </p>
+                  {booking.status === "request_received" && (
+                    <p className="portal-note">
+                      This is a request, not a confirmed appointment. No payment
+                      has been collected.
+                    </p>
+                  )}
                 </article>
               ))}
             </div>
           ) : (
             <p className="portal-empty">
-              No booking requests have been submitted yet.
+              No bookings are linked to this account yet. Verified requests made
+              with this email will appear here.
             </p>
           )}
         </section>
+        <Link className="primary-action" href="/">
+          Start a booking <span aria-hidden="true">↗</span>
+        </Link>
       </div>
     </main>
   );
