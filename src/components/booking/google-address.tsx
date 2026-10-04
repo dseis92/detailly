@@ -141,43 +141,58 @@ export function GoogleAddress({
           styles: [
             {
               featureType: "all",
-              elementType: "geometry",
-              stylers: [{ saturation: -75 }, { lightness: 8 }]
+              elementType: "labels",
+              stylers: [{ gamma: 0.26 }, { visibility: "off" }]
             },
             {
-              featureType: "landscape",
-              elementType: "geometry",
-              stylers: [{ color: "#f4f2ed" }]
+              featureType: "administrative.province",
+              elementType: "all",
+              stylers: [{ visibility: "on" }, { lightness: -50 }]
             },
             {
-              featureType: "water",
-              elementType: "geometry",
-              stylers: [{ color: "#dcebed" }]
+              featureType: "administrative.province",
+              elementType: "labels.text",
+              stylers: [{ lightness: 20 }]
+            },
+            {
+              featureType: "administrative.province",
+              elementType: "labels.text.stroke",
+              stylers: [{ visibility: "off" }]
+            },
+            {
+              featureType: "poi",
+              elementType: "all",
+              stylers: [{ visibility: "off" }]
             },
             {
               featureType: "road",
-              elementType: "geometry",
-              stylers: [{ color: "#ffffff" }, { lightness: 4 }]
+              elementType: "all",
+              stylers: [{ hue: "#ffffff" }]
+            },
+            {
+              featureType: "road",
+              elementType: "labels.text.stroke",
+              stylers: [{ visibility: "off" }]
             },
             {
               featureType: "road.highway",
               elementType: "geometry",
-              stylers: [{ color: "#f2d9d5" }, { lightness: 2 }]
+              stylers: [{ lightness: 50 }, { hue: "#ffffff" }]
             },
             {
-              featureType: "poi",
+              featureType: "road.arterial",
               elementType: "geometry",
-              stylers: [{ color: "#e9eee6" }]
+              stylers: [{ lightness: 20 }]
             },
             {
-              featureType: "all",
-              elementType: "labels.text.fill",
-              stylers: [{ color: "#53636a" }]
+              featureType: "road.arterial",
+              elementType: "labels.text",
+              stylers: [{ visibility: "on" }]
             },
             {
-              featureType: "all",
-              elementType: "labels.text.stroke",
-              stylers: [{ color: "#f8f7f4" }, { lightness: 3 }]
+              featureType: "road.local",
+              elementType: "labels.text",
+              stylers: [{ visibility: "on" }]
             }
           ]
         });
