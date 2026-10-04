@@ -122,7 +122,7 @@ export function BookingFlow({
   const services = catalog.filter((s) => selected.includes(s.id));
   const guideMessage =
     [
-      "Hey, I’m Sudsy! Where’s your ride parked? Enter your full address to get started.",
+      "Hi, I’m Sudsy! Choose your address above to get started.",
       "We bring the shine to you! Choose our mobile menu and we’ll take it from here.",
       category
         ? "Inside, outside, or the whole works? Tap a package to see what’s included."
@@ -291,12 +291,10 @@ export function BookingFlow({
               <h1 ref={heading} tabIndex={-1}>
                 Simply Enter Your Address To View Prices Or Book An Appointment
               </h1>
-              <GoogleAddress onSelect={setAddress} />
-              <p className="manual-hint">
-                Choose your address from Google’s suggestions. We serve within
-                60 miles of Wausau, Rothschild, Schofield, Stevens Point and
-                Plover.
-              </p>
+              <GoogleAddress
+                onSelect={setAddress}
+                serviceAreaNote="We serve within 60 miles of Wausau, Rothschild, Schofield, Stevens Point, and Plover. Choose an address suggestion to continue."
+              />
             </div>
           </section>
         ) : (

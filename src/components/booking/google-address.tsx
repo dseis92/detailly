@@ -89,9 +89,11 @@ function loadMaps(key: string): Promise<MapsApi> {
 }
 
 export function GoogleAddress({
-  onSelect
+  onSelect,
+  serviceAreaNote
 }: {
   onSelect(address: string): void;
+  serviceAreaNote: string;
 }) {
   const [key, setKey] = useState("");
   const mapRef = useRef<HTMLDivElement>(null);
@@ -447,10 +449,7 @@ export function GoogleAddress({
         hidden={!ready}
       />
       {ready && (
-        <p className="manual-hint">
-          Confirm the street number below. You can also enter an address
-          manually.
-        </p>
+        <p className="manual-hint">{serviceAreaNote}</p>
       )}
       {error && (
         <p role="alert" className="error-message">
