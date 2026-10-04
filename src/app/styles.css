@@ -797,13 +797,19 @@ button {
   box-shadow: 0 0 40px #16212808;
 }
 .address-screen {
-  position: relative;
-  min-height: calc(100dvh - 110px);
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  isolation: isolate;
+  width: 100%;
+  height: 100dvh;
+  min-height: 100dvh;
   overflow: hidden;
 }
 .map-backdrop {
   position: absolute;
   inset: 0;
+  z-index: -2;
 }
 .map-backdrop svg {
   width: 100%;
@@ -839,7 +845,7 @@ button {
   align-items: center;
   justify-content: space-between;
   position: relative;
-  z-index: 2;
+  z-index: 3;
 }
 .brand {
   font-size: 17px;
@@ -2525,9 +2531,12 @@ small {
   color-scheme: light;
 }
 .booking-app .google-address-map {
-  width: 100%;
-  height: 190px;
-  border-radius: 16px;
+  position: fixed;
+  z-index: -1;
+  inset: 0;
+  width: 100vw;
+  height: 100dvh;
+  border-radius: 0;
   overflow: hidden;
 }
 .booking-app .google-address-map[hidden] {
