@@ -9,6 +9,7 @@ type GooglePlace = {
   fetchFields(options: { fields: string[] }): Promise<unknown>;
 };
 type PlaceAutocomplete = HTMLElement & {
+  placeholder: string;
   includedRegionCodes: string[];
   locationBias: { center: Coordinates; radius: number };
 };
@@ -153,6 +154,7 @@ export function GoogleAddress({
           marker.setCenter(point);
         };
         autocomplete = new api.places.PlaceAutocompleteElement();
+        autocomplete.placeholder = "Search address or use your location";
         autocomplete.includedRegionCodes = ["us"];
         autocomplete.locationBias = { center, radius: 50000 };
         autocomplete.setAttribute(
