@@ -2202,6 +2202,14 @@ small {
 .booking-app .booking-bottom-dock > .booking-guide {
   margin-bottom: 0;
 }
+.booking-app .booking-bottom-dock:has(.address-toolbar) {
+  padding-top: 6px;
+  background: transparent;
+}
+.booking-app .booking-bottom-dock:has(.address-toolbar) .address-toolbar {
+  min-height: 0;
+  padding: 6px 0 calc(8px + env(safe-area-inset-bottom, 0px));
+}
 .booking-app .booking-bottom-dock .booking-toolbar {
   position: static;
   padding-left: 0;
@@ -2511,6 +2519,10 @@ small {
 }
 .booking-app .google-address-autocomplete {
   width: 100%;
+  border: 2px solid var(--accent);
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 4px 16px #172a3814;
 }
 .booking-app .google-address gmp-place-autocomplete {
   display: block;

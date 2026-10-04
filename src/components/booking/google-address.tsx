@@ -131,10 +131,10 @@ export function GoogleAddress({
       .then((api) => {
         if (disposed || !autocompleteRef.current || !mapRef.current) return;
         apiRef.current = api;
-        const center = { lat: 44.75, lng: -89.63 };
+        const center = { lat: 44.9591, lng: -89.6301 };
         const map = new api.Map(mapRef.current, {
           center,
-          zoom: 9,
+          zoom: 12,
           disableDefaultUI: true,
           zoomControl: true,
           gestureHandling: "cooperative",
