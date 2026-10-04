@@ -9,7 +9,6 @@ import { ServiceVideo } from "./service-video";
 import { BookingGuide } from "./booking-guide";
 import { VehicleGraphic as Car } from "./vehicle-graphic";
 import type { Quote } from "@/modules/catalog-pricing/quote";
-import Link from "next/link";
 
 const categories: { id: VehicleCategory; name: string; shape: string }[] = [
   { id: "sedan-coupe", name: "Coupe", shape: "coupe" },
@@ -136,7 +135,7 @@ export function BookingFlow({
         : "Let’s find your ride’s size! Pick the vehicle that looks closest to yours.",
       "Pick your perfect time! We leave 45 minutes after every detail for travel and setup.",
       "Tell me about your ride! Add its condition, photos, and whether water and electricity are available.",
-      "Who’s getting the shine? Add your contact details. You can continue as a guest.",
+      "Who’s getting the shine? Add your contact details to schedule your detail.",
       bookingReference
         ? "You’re on the list! This request is saved, and the team will follow up to confirm your appointment and deposit."
         : "One last look! Review your service request and 50% deposit before sending it in."
@@ -837,16 +836,8 @@ export function BookingFlow({
                     </select>
                   </label>
                   <button className="soft-button" type="submit">
-                    Continue As Guest
+                    Schedule Detail
                   </button>
-                  <div className="or-rule">
-                    <span />
-                    or
-                    <span />
-                  </div>
-                  <Link className="soft-button" href="/sign-in">
-                    Login / Sign up
-                  </Link>
                 </form>
               )}
               {step === 6 && bookingReference && (
@@ -862,12 +853,6 @@ export function BookingFlow({
                   {photos.length > 0 && (
                     <p>Your photos were not uploaded with this request.</p>
                   )}
-                  <Link
-                    className="primary-action"
-                    href="/sign-in?next=%2Faccount"
-                  >
-                    Sign in to view requests <span aria-hidden="true">↗</span>
-                  </Link>
                 </section>
               )}
               {step === 6 && !bookingReference && (
@@ -1086,9 +1071,6 @@ export function BookingFlow({
             >
               View services
             </button>
-            <Link href="/sign-in" onClick={() => setMenu(false)}>
-              My bookings / login
-            </Link>
             <button onClick={() => setMenu(false)}>Close</button>
           </div>
         )}

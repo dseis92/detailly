@@ -1517,18 +1517,6 @@ small {
   text-decoration: none;
   font-weight: 700;
 }
-.or-rule {
-  display: flex;
-  align-items: center;
-  gap: 18px;
-  padding: 48px 16px;
-  font-size: 14px;
-}
-.or-rule > span {
-  height: 1px;
-  background: var(--border);
-  flex: 1;
-}
 .confirmation {
   display: grid;
   gap: 22px;
