@@ -2073,23 +2073,14 @@ small {
   flex: 1;
   position: relative;
   padding: 14px 17px;
-  background: #f1fafc;
-  border: 1px solid #d4eaf0;
-  border-radius: 18px 18px 18px 5px;
-  box-shadow: 0 3px 10px #213b4804;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
   min-width: 0;
 }
 .booking-app .guide-bubble:before {
-  content: "";
-  position: absolute;
-  left: -6px;
-  bottom: 20px;
-  width: 10px;
-  height: 10px;
-  background: #f1fafc;
-  border-left: 1px solid #d4eaf0;
-  border-bottom: 1px solid #d4eaf0;
-  transform: rotate(45deg);
+  content: none;
 }
 .booking-app .guide-name {
   display: flex;
@@ -2127,10 +2118,7 @@ small {
   margin: 0 0 16px;
 }
 .booking-app .address-entry .guide-bubble {
-  background: #fffffff2;
-}
-.booking-app .address-entry .guide-bubble:before {
-  background: white;
+  background: transparent;
 }
 .booking-app .modal-content > .booking-guide {
   margin-bottom: 25px;

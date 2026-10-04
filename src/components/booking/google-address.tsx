@@ -141,57 +141,61 @@ export function GoogleAddress({
           styles: [
             {
               featureType: "all",
-              elementType: "all",
-              stylers: [
-                { invert_lightness: true },
-                { saturation: -9 },
-                { lightness: 0 },
-                { visibility: "simplified" }
-              ]
+              elementType: "geometry",
+              stylers: [{ saturation: -75 }, { lightness: 8 }]
             },
             {
-              featureType: "landscape.man_made",
-              elementType: "all",
-              stylers: [{ weight: 1 }]
+              featureType: "landscape",
+              elementType: "geometry",
+              stylers: [{ color: "#f4f2ed" }]
             },
             {
-              featureType: "road.highway",
-              elementType: "all",
-              stylers: [{ weight: 0.49 }]
+              featureType: "water",
+              elementType: "geometry",
+              stylers: [{ color: "#dcebed" }]
             },
             {
-              featureType: "road.highway",
-              elementType: "labels",
-              stylers: [
-                { visibility: "on" },
-                { weight: 0.01 },
-                { lightness: -7 },
-                { saturation: -35 }
-              ]
+              featureType: "road",
+              elementType: "geometry",
+              stylers: [{ color: "#ffffff" }, { lightness: 4 }]
             },
             {
               featureType: "road.highway",
-              elementType: "labels.text",
-              stylers: [{ visibility: "on" }]
+              elementType: "geometry",
+              stylers: [{ color: "#f2d9d5" }, { lightness: 2 }]
             },
             {
-              featureType: "road.highway",
+              featureType: "poi",
+              elementType: "geometry",
+              stylers: [{ color: "#e9eee6" }]
+            },
+            {
+              featureType: "all",
+              elementType: "labels.text.fill",
+              stylers: [{ color: "#53636a" }]
+            },
+            {
+              featureType: "all",
               elementType: "labels.text.stroke",
-              stylers: [{ visibility: "off" }]
-            },
-            {
-              featureType: "road.highway",
-              elementType: "labels.icon",
-              stylers: [{ visibility: "on" }]
+              stylers: [{ color: "#f8f7f4" }, { lightness: 3 }]
             }
           ]
         });
         const marker = new api.Circle({
           map,
           center,
-          radius: 35,
+          radius: 180,
           strokeColor: "#ff003b",
-          fillColor: "#ff003b",
+          fillColor: "#ff4568",
+          fillOpacity: 0.16,
+          strokeWeight: 2
+        });
+        const markerCenter = new api.Circle({
+          map,
+          center,
+          radius: 24,
+          strokeColor: "#ffffff",
+          fillColor: "#ed3155",
           fillOpacity: 1,
           strokeWeight: 3
         });
@@ -199,6 +203,7 @@ export function GoogleAddress({
           map.setCenter(point);
           map.setZoom(16);
           marker.setCenter(point);
+          markerCenter.setCenter(point);
         };
         autocomplete = new api.places.PlaceAutocompleteElement();
         autocomplete.placeholder = "Search address or use your location";
