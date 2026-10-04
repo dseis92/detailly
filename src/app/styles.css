@@ -2520,14 +2520,10 @@ small {
 }
 .booking-app .google-address-autocomplete {
   width: 100%;
-  min-height: 54px;
-  padding: 14px 16px;
-  color: var(--foreground);
-  background: white;
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  font: inherit;
-  font-size: 16px;
+}
+.booking-app .google-address gmp-place-autocomplete {
+  display: block;
+  width: 100%;
   color-scheme: light;
 }
 .booking-app .google-address-map {
