@@ -28,37 +28,62 @@ type MapsApi = {
   };
 };
 type GoogleWindow = Window & {
-  google?: { maps: MapsApi };
+  google?: { maps?: GoogleMapsLoader };
+};
+type GoogleMapsLoader = {
+  importLibrary?(name: "maps" | "places"): Promise<unknown>;
+  __ib__?: () => void;
 };
 let loading: Promise<MapsApi> | undefined;
 function loadMaps(key: string): Promise<MapsApi> {
   if (loading) return loading;
-  loading = new Promise((resolve, reject) => {
-    const script = document.createElement("script");
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(key)}&libraries=places&v=weekly&loading=async`;
-    script.async = true;
-    script.onload = () => {
-      const maps = (window as GoogleWindow).google?.maps;
-      if (!maps) {
-        reject(new Error("Maps unavailable"));
-        return;
-      }
-      if (
-        !maps.places?.PlaceAutocompleteElement ||
-        !maps.Map ||
-        !maps.Geocoder
-      ) {
-        reject(new Error("Google Places library unavailable"));
-        return;
-      }
-      resolve(maps);
+  const windowWithGoogle = window as GoogleWindow;
+  const namespace = (windowWithGoogle.google ??= {});
+  const maps = (namespace.maps ??= {});
+  if (!maps.importLibrary) {
+    const libraries = new Set<string>();
+    let scriptLoad: Promise<void> | undefined;
+    maps.importLibrary = (name) => {
+      libraries.add(name);
+      scriptLoad ??= new Promise<void>((resolve, reject) => {
+        queueMicrotask(() => {
+          const script = document.createElement("script");
+          const params = new URLSearchParams({
+            key,
+            v: "weekly",
+            libraries: [...libraries].join(","),
+            callback: "google.maps.__ib__"
+          });
+          script.src = `https://maps.googleapis.com/maps/api/js?${params}`;
+          script.async = true;
+          maps.__ib__ = resolve;
+          script.onerror = () => {
+            scriptLoad = undefined;
+            reject(new Error("Maps unavailable"));
+          };
+          script.nonce =
+            document.querySelector<HTMLScriptElement>("script[nonce]")?.nonce ??
+            "";
+          document.head.append(script);
+        });
+      });
+      return scriptLoad.then(() => maps.importLibrary?.(name));
     };
-    script.onerror = () => {
+  }
+  const importLibrary = maps.importLibrary;
+  loading = Promise.all([importLibrary("maps"), importLibrary("places")])
+    .then(([mapLibrary, placesLibrary]) => {
+      const mapTypes = mapLibrary as Pick<
+        MapsApi,
+        "Map" | "Circle" | "Geocoder"
+      >;
+      const placeTypes = placesLibrary as MapsApi["places"];
+      return { ...mapTypes, places: placeTypes };
+    })
+    .catch((cause: unknown) => {
       loading = undefined;
-      reject(new Error("Maps unavailable"));
-    };
-    document.head.append(script);
-  });
+      throw cause;
+    });
   return loading;
 }
 
