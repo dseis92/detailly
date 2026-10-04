@@ -442,15 +442,13 @@ export function GoogleAddress({
           </button>
         </>
       )}
+      {ready && <p className="manual-hint">{serviceAreaNote}</p>}
       <div
         ref={mapRef}
         className="google-address-map"
         aria-label="Service address map"
         hidden={!ready}
       />
-      {ready && (
-        <p className="manual-hint">{serviceAreaNote}</p>
-      )}
       {error && (
         <p role="alert" className="error-message">
           {error}
